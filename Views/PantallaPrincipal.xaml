@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         Title="PantallaPrincipal" Height="450" Width="800">
     <Grid>
+        <TextBlock>Rama Master 01</TextBlock>
         
     </Grid>
 </Window>
