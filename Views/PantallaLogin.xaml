@@ -1,0 +1,230 @@
+﻿<Window x:Class="sistema_gestion_heladeria.Views.PantallaLogin"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:sistema_gestion_heladeria.Views"
+        mc:Ignorable="d"
+        Title="Frazzé"
+        Height="600"
+        Width="950"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="#F8F3ED">
+
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.05*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+
+        <!-- ========================= -->
+        <!-- PANEL IZQUIERDO            -->
+        <!-- ========================= -->
+
+        <Grid Grid.Column="0"
+              Background="#5A3931">
+
+            <!-- Decoración -->
+            <Ellipse Width="420"
+                     Height="420"
+                     Fill="#68453C"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Top"
+                     Margin="-180,-150"/>
+
+            <Ellipse Width="300"
+                     Height="300"
+                     Fill="#704A40"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,-120,-100"/>
+
+
+            <!-- Marca -->
+            <StackPanel VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+
+                <TextBlock Text="FRAZZÉ"
+                           Foreground="#FFF8F0"
+                           FontSize="54"
+                           FontWeight="Bold"
+                           FontFamily="Georgia"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="H E L A D E R Í A"
+                           Foreground="#EBCFC3"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,8,0,25"/>
+
+                <Border Width="55"
+                        Height="2"
+                        Background="#E7B6A5"
+                        HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Sistema de gestión"
+                           Foreground="#F5DDD3"
+                           FontSize="16"
+                           HorizontalAlignment="Center"
+                           Margin="0,25,0,0"/>
+
+            </StackPanel>
+
+        </Grid>
+
+
+        <!-- ========================= -->
+        <!-- PANEL DERECHO / LOGIN      -->
+        <!-- ========================= -->
+
+        <Grid Grid.Column="1"
+              Background="#F8F3ED">
+
+
+            <!-- BOTÓN CERRAR -->
+            <Button Content="×"
+                    Width="38"
+                    Height="38"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="0,15,15,0"
+                    Background="Transparent"
+                    Foreground="#8A6B61"
+                    BorderThickness="0"
+                    FontSize="26"
+                    Cursor="Hand"
+                    Click="BtnCerrar_Click"/>
+
+
+            <!-- CONTENIDO LOGIN -->
+            <StackPanel Width="320"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+
+
+                <!-- TÍTULO -->
+                <TextBlock Text="Bienvenido"
+                           Foreground="#4B332D"
+                           FontSize="30"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+
+                <TextBlock Text="Ingresá a tu cuenta"
+                           Foreground="#92786E"
+                           FontSize="14"
+                           HorizontalAlignment="Center"
+                           Margin="0,7,0,35"/>
+
+
+                <!-- ========================= -->
+                <!-- USUARIO                    -->
+                <!-- ========================= -->
+
+                <TextBlock Text="USUARIO"
+                           Foreground="#684940"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           Margin="2,0,0,7"/>
+
+                <Border Height="45"
+                        Background="White"
+                        BorderBrush="#E1D4CC"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Margin="0,0,0,20">
+
+                    <TextBox x:Name="txtUsuario"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             Foreground="#4B332D"
+                             FontSize="15"
+                             Padding="12,11"/>
+
+                </Border>
+
+
+                <!-- ========================= -->
+                <!-- CONTRASEÑA                 -->
+                <!-- ========================= -->
+
+                <TextBlock Text="CONTRASEÑA"
+                           Foreground="#684940"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           Margin="2,0,0,7"/>
+
+                <Border Height="45"
+                        Background="White"
+                        BorderBrush="#E1D4CC"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Margin="0,0,0,28">
+
+                    <PasswordBox x:Name="txtContrasena"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="#4B332D"
+                                 FontSize="15"
+                                 Padding="12,11"/>
+
+                </Border>
+
+
+                <!-- ========================= -->
+                <!-- BOTÓN INGRESAR             -->
+                <!-- ========================= -->
+
+                <Button x:Name="BtnIngresar"
+                        Content="INGRESAR"
+                        Height="48"
+                        Background="#B96F62"
+                        Foreground="White"
+                        BorderThickness="0"
+                        FontSize="13"
+                        FontWeight="Bold"
+                        Cursor="Hand"
+                        Click="BtnIngresar_Click">
+
+                    <Button.Template>
+
+                        <ControlTemplate TargetType="Button">
+
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8">
+
+                                <ContentPresenter
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+
+                            </Border>
+
+                        </ControlTemplate>
+
+                    </Button.Template>
+
+                </Button>
+
+
+                <!-- ========================= -->
+                <!-- MENSAJE DE ERROR           -->
+                <!-- ========================= -->
+
+                <TextBlock x:Name="txtMensaje"
+                           Foreground="#B94A48"
+                           FontSize="13"
+                           TextAlignment="Center"
+                           HorizontalAlignment="Center"
+                           Margin="0,18,0,0"/>
+
+            </StackPanel>
+
+        </Grid>
+
+    </Grid>
+
+</Window>
