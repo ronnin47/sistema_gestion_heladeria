@@ -1,16 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using sistema_gestion_heladeria.Services;
+using sistema_gestion_heladeria.Models;
 
 namespace sistema_gestion_heladeria.Views
 {
@@ -24,36 +15,44 @@ namespace sistema_gestion_heladeria.Views
             InitializeComponent();
         }
 
-        private void BtnIngresar_Click(object sender, RoutedEventArgs e)
+        private async void BtnIngresar_Click(object sender, RoutedEventArgs e)
         {
-            string usuario = txtUsuario.Text.Trim();
+            string email = txtUsuario.Text.Trim();
             string contrasena = txtContrasena.Password;
 
-            if (string.IsNullOrWhiteSpace(usuario) ||
+            if (string.IsNullOrWhiteSpace(email) ||
                 string.IsNullOrWhiteSpace(contrasena))
             {
-                txtMensaje.Text = "Completá usuario y contraseña.";
+                txtMensaje.Text = "Completá email y contraseña.";
                 return;
             }
 
-            // Login temporal
-            if (usuario == "user" && contrasena == "1234")
-            {
-                // Guardamos la sesión
-                SesionUsuario.GuardarSesion(1, usuario);
+            LoginService loginService = new LoginService();
 
-                // Abrimos la pantalla principal
+            SessionDataUser usuario = await loginService.Login(email, contrasena);
+
+            if (usuario != null)
+            {
+                SesionUsuario.GuardarSesion(
+                    usuario.IdUsuario,
+                    
+                    usuario.Nombre,
+                    usuario.Apellido,
+                    usuario.Email,
+                    usuario.Status,
+                    usuario.Imagen
+                );
+
                 PantallaPrincipal principal = new PantallaPrincipal();
                 principal.Show();
 
-                // Cerramos el login
                 Close();
-
                 return;
             }
 
-            txtMensaje.Text = "Usuario o contraseña incorrectos.";
+            txtMensaje.Text = "Email o contraseña incorrectos.";
         }
+
         private void BtnCerrar_Click(object sender, RoutedEventArgs e)
         {
             Close();

@@ -19,7 +19,14 @@ namespace sistema_gestion_heladeria
             return File.Exists(RutaSesion);
         }
 
-        public static void GuardarSesion(int idUsuario, string usuario)
+        public static void GuardarSesion(
+            int idUsuario,
+           
+            string nombre,
+            string apellido,
+            string email,
+            string status,
+            string imagen)
         {
             string carpeta = Path.GetDirectoryName(RutaSesion);
 
@@ -29,7 +36,12 @@ namespace sistema_gestion_heladeria
             var sesion = new SessionDataUser
             {
                 IdUsuario = idUsuario,
-                Usuario = usuario
+               
+                Nombre = nombre,
+                Apellido = apellido,
+                Email = email,
+                Status = status,
+                Imagen=imagen
             };
 
             string json = JsonSerializer.Serialize(sesion);
@@ -53,6 +65,4 @@ namespace sistema_gestion_heladeria
                 File.Delete(RutaSesion);
         }
     }
-
-  
 }
