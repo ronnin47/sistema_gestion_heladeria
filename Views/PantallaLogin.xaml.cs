@@ -43,7 +43,7 @@ namespace sistema_gestion_heladeria.Views
                     usuario.Imagen
                 );
 
-                PantallaPrincipal principal = new PantallaPrincipal();
+                PantallaPrincipal principal = new PantallaPrincipal(usuario);
                 principal.Show();
 
                 Close();

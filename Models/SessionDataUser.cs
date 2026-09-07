@@ -20,5 +20,4 @@ namespace sistema_gestion_heladeria.Models
     }
 
 
-
 }

@@ -19,9 +19,8 @@ namespace sistema_gestion_heladeria
             return File.Exists(RutaSesion);
         }
 
-        public static void GuardarSesion(
-            int idUsuario,
-           
+        public static void GuardarSesion( 
+            int idUsuario, 
             string nombre,
             string apellido,
             string email,
@@ -36,7 +35,6 @@ namespace sistema_gestion_heladeria
             var sesion = new SessionDataUser
             {
                 IdUsuario = idUsuario,
-               
                 Nombre = nombre,
                 Apellido = apellido,
                 Email = email,

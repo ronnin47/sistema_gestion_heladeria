@@ -10,28 +10,19 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
-using sistema_gestion_heladeria.Models;
 
-namespace sistema_gestion_heladeria.Views
+namespace sistema_gestion_heladeria.Controls
 {
     /// <summary>
-    /// Lógica de interacción para PantallaPrincipal.xaml
+    /// Lógica de interacción para controlPrueba.xaml
     /// </summary>
-    public partial class PantallaPrincipal : Window
+    public partial class controlPrueba : UserControl
     {
-
-        private SessionDataUser usuario;
-
-
-        public PantallaPrincipal(SessionDataUser _user)
+        public controlPrueba()
         {
-
-            usuario= _user;
-
             InitializeComponent();
         }
-
-
     }
 }

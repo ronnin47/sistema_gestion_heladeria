@@ -93,6 +93,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\controlPrueba.xaml.cs">
+      <DependentUpon>controlPrueba.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
     <Compile Include="Services\LoginService.cs" />
@@ -132,9 +135,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />
-    <Folder Include="Controls\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\controlPrueba.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\PantallaLogin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

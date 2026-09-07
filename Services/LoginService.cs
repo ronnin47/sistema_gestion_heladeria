@@ -13,6 +13,10 @@ namespace sistema_gestion_heladeria.Services
 
         private readonly string apiUrl = "http://localhost:3000";
 
+
+
+    
+
         public async Task<SessionDataUser> Login(string email, string pass)
         {
             try
@@ -55,11 +59,18 @@ namespace sistema_gestion_heladeria.Services
             }
         }
 
+
+
         private class LoginResponse
         {
             public bool login { get; set; }
             public SessionDataUser usuario { get; set; }
         }
+
+
+
+
+
     }
 }
 
