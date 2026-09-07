@@ -21,16 +21,37 @@ namespace sistema_gestion_heladeria.Views
     public partial class PantallaPrincipal : Window
     {
 
-        //private SessionDataUser usuario;
+        private SessionDataUser usuario;
 
 
-        public PantallaPrincipal()
+        public PantallaPrincipal(SessionDataUser _user)
         {
 
-           // usuario= _user;
+            usuario= _user;
 
             InitializeComponent();
+
+            CargarDatosUsuario();
         }
+
+        private void CargarDatosUsuario()
+        {
+            TxtNombre.Text = $"{usuario.Nombre} {usuario.Apellido}";
+            TxtEstado.Text = $"Estado de cuenta: {usuario.Status}";
+        }
+
+        private void CerrarSesion_Click(object sender, RoutedEventArgs e) {
+
+            //MessageBox.Show("funca el boton cerrar secion");
+
+            //tenemos que llamar el metodo cerrar sesion de la clase session usuario, es un metodo estatico
+
+            SesionUsuario.CerrarSesion();
+
+            this.Close();
+
+        }
+
 
 
     }

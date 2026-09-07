@@ -30,7 +30,7 @@ namespace sistema_gestion_heladeria.Views
             LoginService loginService = new LoginService();
 
             SessionDataUser usuario = await loginService.Login(email, contrasena);
-
+            //persistencia en memoria local
             if (usuario != null)
             {
                 SesionUsuario.GuardarSesion(
@@ -43,7 +43,7 @@ namespace sistema_gestion_heladeria.Views
                     usuario.Imagen
                 );
 
-                PantallaPrincipal principal = new PantallaPrincipal();
+                PantallaPrincipal principal = new PantallaPrincipal(usuario);
                 principal.Show();
 
                 Close();

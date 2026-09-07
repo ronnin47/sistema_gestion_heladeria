@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using sistema_gestion_heladeria.Views;
 
+using sistema_gestion_heladeria.Models;
+
 namespace sistema_gestion_heladeria
 {
     public partial class App : Application
@@ -15,7 +17,9 @@ namespace sistema_gestion_heladeria
 
             if (SesionUsuario.EstaLogueado())
             {
-                PantallaPrincipal principal = new PantallaPrincipal();
+                SessionDataUser usuario = SesionUsuario.ObtenerSesion();
+
+                PantallaPrincipal principal = new PantallaPrincipal( usuario);
                 principal.Show();
             }
             else

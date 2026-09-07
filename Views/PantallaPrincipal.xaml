@@ -5,9 +5,60 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:sistema_gestion_heladeria.Views"
         mc:Ignorable="d"
-        Title="PantallaPrincipal" Height="450" Width="800">
+        Title="Pantalla Principal"
+        Height="450"
+        Width="800">
+
     <Grid>
-        
-        
+
+        <!-- HEADER -->
+        <Border Height="70"
+                VerticalAlignment="Top"
+                Background="#2C3E50"
+                Padding="20,10">
+
+            <Grid>
+
+                <!-- Datos del usuario -->
+                <StackPanel VerticalAlignment="Center">
+
+                    <TextBlock x:Name="TxtNombre"
+                               Foreground="White"
+                               FontSize="18"
+                               FontWeight="Bold"/>
+
+                    <TextBlock x:Name="TxtEstado"
+                               Foreground="#BDC3C7"
+                               FontSize="13"
+                               Margin="0,3,0,0"/>
+
+                </StackPanel>
+
+                <!-- Botón cerrar sesión -->
+                <Button Content="Cerrar sesión"
+                        Width="120"
+                        Height="35"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Background="#D9534F"
+                        Foreground="White"
+                        FontWeight="Bold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="CerrarSesion_Click"/>
+
+            </Grid>
+
+        </Border>
+
+        <!-- CONTENIDO -->
+        <Grid Margin="0,70,0,0">
+
+            <!-- Acá va el contenido de tu pantalla -->
+
+        </Grid>
+
     </Grid>
+
 </Window>
+
