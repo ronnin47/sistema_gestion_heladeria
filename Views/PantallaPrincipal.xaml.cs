@@ -21,13 +21,13 @@ namespace sistema_gestion_heladeria.Views
     public partial class PantallaPrincipal : Window
     {
 
-        private SessionDataUser usuario;
+        //private SessionDataUser usuario;
 
 
-        public PantallaPrincipal(SessionDataUser _user)
+        public PantallaPrincipal()
         {
 
-            usuario= _user;
+           // usuario= _user;
 
             InitializeComponent();
         }
