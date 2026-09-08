@@ -1,6 +1,9 @@
 ﻿using System.IO;
 using System.Text.Json;
 using sistema_gestion_heladeria.Models;
+using System.Windows;
+
+using sistema_gestion_heladeria.Views;
 
 namespace sistema_gestion_heladeria
 {
@@ -61,6 +64,13 @@ namespace sistema_gestion_heladeria
         {
             if (File.Exists(RutaSesion))
                 File.Delete(RutaSesion);
+            //MessageBox.Show("se borro la carpeta de sesion");
+
+            PantallaLogin login = new PantallaLogin();
+            login.Show();
+
+            //_pantallaPrincipal?.Close();
+            //_pantallaPrincipal = null;
         }
     }
 }
