@@ -93,8 +93,20 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Controls\administradorControl.xaml.cs">
+      <DependentUpon>administradorControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\cajeroControl.xaml.cs">
+      <DependentUpon>cajeroControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\controlPrueba.xaml.cs">
       <DependentUpon>controlPrueba.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\produccionControl.xaml.cs">
+      <DependentUpon>produccionControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\repartidorControl.xaml.cs">
+      <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
@@ -137,7 +149,23 @@
     <Folder Include="Assets\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\administradorControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\cajeroControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\controlPrueba.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\produccionControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\repartidorControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
