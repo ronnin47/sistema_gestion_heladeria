@@ -16,7 +16,7 @@ using sistema_gestion_heladeria.Controls;
 
 namespace sistema_gestion_heladeria.Views
 {
-   
+
     public partial class PantallaPrincipal : Window
     {
 
@@ -26,11 +26,11 @@ namespace sistema_gestion_heladeria.Views
         public PantallaPrincipal(SessionDataUser _user)
         {
 
-           usuario= _user;
+            usuario = _user;
 
             InitializeComponent();
 
-           
+
         }
 
 
@@ -104,7 +104,8 @@ namespace sistema_gestion_heladeria.Views
 
 
 
-        private void CerrarSesion_Click(object sender, RoutedEventArgs e) {
+        private void CerrarSesion_Click(object sender, RoutedEventArgs e)
+        {
 
             //MessageBox.Show("funca el boton cerrar sesion");
             SesionUsuario.CerrarSesion();
