@@ -2,6 +2,7 @@
 using System.Windows;
 using sistema_gestion_heladeria.Services;
 using sistema_gestion_heladeria.Models;
+using System.Windows.Controls;
 
 namespace sistema_gestion_heladeria.Views
 {
@@ -53,6 +54,17 @@ namespace sistema_gestion_heladeria.Views
             txtMensaje.Text = "Email o contraseña incorrectos.";
         }
 
+
+        private void cmbUsuarioPrueba_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem item = cmbUsuarioPrueba.SelectedItem as ComboBoxItem;
+
+            if (item == null)
+                return;
+
+            txtUsuario.Text = item.Tag.ToString();
+            txtContrasena.Password = "1234";
+        }
         private void BtnCerrar_Click(object sender, RoutedEventArgs e)
         {
             Close();

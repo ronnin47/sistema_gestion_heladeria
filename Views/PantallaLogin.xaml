@@ -221,6 +221,40 @@
                            HorizontalAlignment="Center"
                            Margin="0,18,0,0"/>
 
+
+                <!-- ========================= -->
+                <!-- SELECTOR DE PRUEBA        -->
+                <!-- ========================= -->
+
+                <TextBlock Text="PRUEBA DE USUARIO"
+                           Foreground="#92786E"
+                           FontSize="10"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Margin="0,18,0,6"/>
+
+                <ComboBox x:Name="cmbUsuarioPrueba"
+                          Height="35"
+                          FontSize="13"
+                          Foreground="#4B332D"
+                          Background="White"
+                          BorderBrush="#E1D4CC"
+                          SelectionChanged="cmbUsuarioPrueba_SelectionChanged">
+
+                    <ComboBoxItem Content="Cajero"
+              Tag="cajero@gmail.com"/>
+
+                    <ComboBoxItem Content="Producción"
+              Tag="produccion@gmail.com"/>
+
+                    <ComboBoxItem Content="Repartidor"
+              Tag="repartidor@gmail.com"/>
+
+                    <ComboBoxItem Content="Administrador"
+              Tag="administrador@gmail.com"/>
+
+                </ComboBox>
+
             </StackPanel>
 
         </Grid>

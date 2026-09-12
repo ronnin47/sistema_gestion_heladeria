@@ -12,12 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using sistema_gestion_heladeria.Models;
+using sistema_gestion_heladeria.Controls;
 
 namespace sistema_gestion_heladeria.Views
 {
-    /// <summary>
-    /// Lógica de interacción para PantallaPrincipal.xaml
-    /// </summary>
+
     public partial class PantallaPrincipal : Window
     {
 
@@ -27,27 +26,89 @@ namespace sistema_gestion_heladeria.Views
         public PantallaPrincipal(SessionDataUser _user)
         {
 
-            usuario= _user;
+            usuario = _user;
 
             InitializeComponent();
 
-            CargarDatosUsuario();
+
         }
 
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            CargarDatosUsuario();
+
+            //Segun el rol del usuario que userControl le renderiza
+            CargarPanelSegunEstado();
+        }
+
+
+        private void CargarPanelSegunEstado()
+        {
+            switch (usuario.Status.ToLower())
+            {
+                // Acá van los 4 casos
+
+                case "cajero":
+                    PanelContenido.Content = new cajeroControl();
+                    break;
+
+                case "produccion":
+                    PanelContenido.Content = new produccionControl();
+                    break;
+                case "repartidor":
+                    PanelContenido.Content = new repartidorControl();
+                    break;
+
+                case "administrador":
+                    PanelContenido.Content = new administradorControl();
+                    break;
+
+            }
+        }
         private void CargarDatosUsuario()
         {
             TxtNombre.Text = $"{usuario.Nombre} {usuario.Apellido}";
             TxtEstado.Text = $"Estado de cuenta: {usuario.Status}";
         }
 
-        private void CerrarSesion_Click(object sender, RoutedEventArgs e) {
 
-            //MessageBox.Show("funca el boton cerrar secion");
 
-            //tenemos que llamar el metodo cerrar sesion de la clase session usuario, es un metodo estatico
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        private void CerrarSesion_Click(object sender, RoutedEventArgs e)
+        {
+
+            //MessageBox.Show("funca el boton cerrar sesion");
             SesionUsuario.CerrarSesion();
-
             this.Close();
 
         }

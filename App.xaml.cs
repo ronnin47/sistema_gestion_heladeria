@@ -19,7 +19,7 @@ namespace sistema_gestion_heladeria
             {
                 SessionDataUser usuario = SesionUsuario.ObtenerSesion();
 
-                PantallaPrincipal principal = new PantallaPrincipal( usuario);
+                PantallaPrincipal principal = new PantallaPrincipal(usuario);
                 principal.Show();
             }
             else

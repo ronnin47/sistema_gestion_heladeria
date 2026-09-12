@@ -7,37 +7,43 @@
         mc:Ignorable="d"
         Title="Pantalla Principal"
         Height="450"
-        Width="800">
+        Width="800"
+        Loaded="Window_Loaded">
 
     <Grid>
 
         <!-- HEADER -->
-        <Border Height="70"
+        <Border Height="40"
                 VerticalAlignment="Top"
                 Background="#2C3E50"
                 Padding="20,10">
 
             <Grid>
 
+
+                <TextBlock     Text="Heladería Frazee"
+                               Foreground="White"
+                               FontSize="14"
+                               FontWeight="Bold"/>
                 <!-- Datos del usuario -->
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center">
 
                     <TextBlock x:Name="TxtNombre"
                                Foreground="White"
-                               FontSize="18"
+                               FontSize="14"
                                FontWeight="Bold"/>
 
                     <TextBlock x:Name="TxtEstado"
                                Foreground="#BDC3C7"
-                               FontSize="13"
+                               FontSize="11"
                                Margin="0,3,0,0"/>
 
                 </StackPanel>
 
                 <!-- Botón cerrar sesión -->
                 <Button Content="Cerrar sesión"
-                        Width="120"
-                        Height="35"
+                        Width="80"
+                        Height="32"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center"
                         Background="#D9534F"
@@ -52,9 +58,9 @@
         </Border>
 
         <!-- CONTENIDO -->
-        <Grid Margin="0,70,0,0">
+        <Grid Margin="0,40,0,0">
 
-            <!-- Acá va el contenido de tu pantalla -->
+            <ContentControl x:Name="PanelContenido"/>
 
         </Grid>
 
