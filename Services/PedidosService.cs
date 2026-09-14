@@ -5,152 +5,69 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using sistema_gestion_heladeria.Models;
+using sistema_gestion_heladeria.Config;
+using System.Windows;
 
 namespace sistema_gestion_heladeria.Services
 {
-    class PedidosService
+   public class PedidosService
     {
-        private readonly HttpClient client = new HttpClient();
-
-        private readonly string apiUrl = "http://localhost:3000";
 
 
-        // Obtener pedidos activos
-        public async Task<List<Pedido>> GetPedidosActivosAsync()
+        public async Task<bool> InsertarPedido(PedidoCaja pedido)
         {
             try
             {
-                HttpResponseMessage response = await client.GetAsync(
-                    $"{apiUrl}/pedidos/activos"
-                );
-
-                if (!response.IsSuccessStatusCode)
-                    return new List<Pedido>();
-
-                string respuesta = await response.Content.ReadAsStringAsync();
-
-                var pedidos =
-                    JsonConvert.DeserializeObject<List<Pedido>>(
-                        respuesta
-                    );
-
-                return pedidos ?? new List<Pedido>();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"Error al obtener pedidos activos: {ex.Message}"
-                );
-
-                return new List<Pedido>();
-            }
-        }
 
 
-        // Obtener cantidad de pedidos completados hoy
-        public async Task<int> GetCompletadosHoyAsync()
-        {
-            try
-            {
-                HttpResponseMessage response = await client.GetAsync(
-                    $"{apiUrl}/pedidos/completados-hoy"
-                );
-
-                if (!response.IsSuccessStatusCode)
-                    return 0;
-
-                string respuesta = await response.Content.ReadAsStringAsync();
-
-                var metricas =
-                    JsonConvert.DeserializeObject<MetricasHoy>(
-                        respuesta
-                    );
-
-                return metricas?.completados ?? 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"Error al obtener pedidos completados: {ex.Message}"
-                );
-
-                return 0;
-            }
-        }
-
-
-        // Crear pedido
-        public async Task<bool> CrearPedidoAsync(Pedido pedido)
-        {
-            try
-            {
-                string json = JsonConvert.SerializeObject(pedido);
-
-                var contenido = new StringContent(
-                    json,
-                    Encoding.UTF8,
-                    "application/json"
-                );
-
-                HttpResponseMessage response = await client.PostAsync(
-                    $"{apiUrl}/pedidos",
-                    contenido
-                );
-
-                return response.IsSuccessStatusCode;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(
-                    $"Error al crear pedido: {ex.Message}"
-                );
-
-                return false;
-            }
-        }
-
-
-        // Cambiar estado del pedido
-        public async Task<bool> MarcarPedidoComoAsync(
-            int idVenta,
-            string nuevoEstado
-        )
-        {
-            try
-            {
-                var datos = new
+                //Mensaje de salida para verlo nosotros
+                MessageBox.Show(
+     "ID Usuario recibido: " + pedido.id);
+                using (HttpClient client = new HttpClient())
                 {
-                    estado = nuevoEstado
-                };
+                    string json =
+                        JsonConvert.SerializeObject(pedido);
 
-                string json = JsonConvert.SerializeObject(datos);
+                    StringContent contenido =
+                        new StringContent(
+                            json,
+                            Encoding.UTF8,
+                            "application/json");
 
-                var contenido = new StringContent(
-                    json,
-                    Encoding.UTF8,
-                    "application/json"
-                );
+                    HttpResponseMessage respuesta =
+                        await client.PostAsync(
+                            ApiConfig.ApiUrl + "/insertPedido",
+                            contenido);
 
-                var request = new HttpRequestMessage(
-                    new HttpMethod("PATCH"),
-                    $"{apiUrl}/pedidos/{idVenta}/estado"
-                );
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
 
-                request.Content = contenido;
+                    string error =
+                        await respuesta.Content.ReadAsStringAsync();
 
-                HttpResponseMessage response =
-                    await client.SendAsync(request);
+                    Console.WriteLine(
+                        "Error al insertar pedido: " +
+                        error);
 
-                return response.IsSuccessStatusCode;
+                    return false;
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(
-                    $"Error al cambiar estado: {ex.Message}"
-                );
+                    "Error al insertar pedido: " +
+                    ex.Message);
 
                 return false;
             }
         }
+
+
+
+
+
+
     }
 }

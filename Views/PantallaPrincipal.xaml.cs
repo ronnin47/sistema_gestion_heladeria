@@ -36,46 +36,17 @@ namespace sistema_gestion_heladeria.Views
         }
 
 
-        private async void Window_Loaded (object sender, RoutedEventArgs e)
+        private void Window_Loaded (object sender, RoutedEventArgs e)
         {
             CargarDatosUsuario();
 
            
             //Segun el rol del usuario que userControl le renderiza
             CargarPanelSegunEstado();
-            
-             await ConsumirTodosProductos();
+        
         }
 
-        private async Task ConsumirTodosProductos()
-{
-    ProductosService productosService = new ProductosService();
-
-    List<Producto> productos = await productosService.ConsumirTodosProductos();
-
-    string mensaje = "";
-
-    foreach (Producto producto in productos)
-    {
-        mensaje +=
-            $"ID: {producto.IdProducto}\n" +
-            $"Nombre: {producto.Nombre}\n" +
-            $"Descripción: {producto.Descripcion}\n" +
-            $"Precio: {producto.Precio}\n" +
-            $"Stock: {producto.Stock}\n" +
-            $"Categoría: {producto.Categoria}\n" +
-            $"Activo: {producto.Activo}\n" +
-            $"-------------------------\n";
-    }
-
-    if (productos.Count == 0)
-    {
-        MessageBox.Show("No se encontraron productos.");
-        return;
-    }
-
-    MessageBox.Show(mensaje, "Productos recibidos");
-}
+       
 
 
         private void CargarPanelSegunEstado()
@@ -85,7 +56,7 @@ namespace sistema_gestion_heladeria.Views
                 // Acá van los 4 casos
 
                 case "cajero":
-                    PanelContenido.Content = new cajeroControl();
+                    PanelContenido.Content = new cajeroControl(usuario);
                     break;
 
                 case "produccion":
@@ -101,6 +72,8 @@ namespace sistema_gestion_heladeria.Views
 
             }
         }
+
+
         private void CargarDatosUsuario()
         {
             TxtNombre.Text = $"{usuario.Nombre} {usuario.Apellido}";

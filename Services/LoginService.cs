@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using sistema_gestion_heladeria.Models;
+using System.Windows;
 
 namespace sistema_gestion_heladeria.Services
 {
@@ -49,6 +50,8 @@ namespace sistema_gestion_heladeria.Services
 
                 if (resultado == null || resultado.usuario == null)
                     return null;
+
+                MessageBox.Show($"{resultado.usuario.IdUsuario}");
 
                 return resultado.usuario;
             }

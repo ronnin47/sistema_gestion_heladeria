@@ -93,6 +93,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Config\ApiConfig.cs" />
     <Compile Include="Controls\administradorControl.xaml.cs">
       <DependentUpon>administradorControl.xaml</DependentUpon>
     </Compile>
@@ -109,10 +110,8 @@
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Cliente.cs" />
-    <Compile Include="Models\MetricasHoy.cs" />
-    <Compile Include="Models\Pedido.cs" />
+    <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\Producto.cs" />
-    <Compile Include="Models\ProductoPedido.cs" />
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
     <Compile Include="Services\LoginService.cs" />
@@ -154,7 +153,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Assets\" />
-    <Folder Include="DTO\" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Controls\administradorControl.xaml">

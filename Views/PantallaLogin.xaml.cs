@@ -31,6 +31,9 @@ namespace sistema_gestion_heladeria.Views
             LoginService loginService = new LoginService();
 
             SessionDataUser usuario = await loginService.Login(email, contrasena);
+
+            MessageBox.Show($"ID de usuario: {usuario.IdUsuario}");
+
             //persistencia en memoria local
             if (usuario != null)
             {
@@ -65,6 +68,8 @@ namespace sistema_gestion_heladeria.Views
             txtUsuario.Text = item.Tag.ToString();
             txtContrasena.Password = "1234";
         }
+
+
         private void BtnCerrar_Click(object sender, RoutedEventArgs e)
         {
             Close();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using sistema_gestion_heladeria.Models;
+using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Services
 {
@@ -11,16 +12,14 @@ namespace sistema_gestion_heladeria.Services
     //CLASE PARA TRAER LA INFORMACION DE LOS PRODUCTOS
    public class ProductosService
     {
-        private readonly HttpClient client = new HttpClient();
-
-        private readonly string apiUrl = "http://localhost:3000";
+    
 
         public async Task<List<Producto>> ConsumirTodosProductos()
         {
             try
             {
-                HttpResponseMessage response = await client.GetAsync(
-                    $"{apiUrl}/productos"
+                HttpResponseMessage response = await ApiConfig.Client.GetAsync(
+                    $"{ApiConfig.ApiUrl}/productos"
                 );
 
                 if (!response.IsSuccessStatusCode)
