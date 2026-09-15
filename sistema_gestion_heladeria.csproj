@@ -100,9 +100,6 @@
     <Compile Include="Controls\cajeroControl.xaml.cs">
       <DependentUpon>cajeroControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Controls\controlPrueba.xaml.cs">
-      <DependentUpon>controlPrueba.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Controls\produccionControl.xaml.cs">
       <DependentUpon>produccionControl.xaml</DependentUpon>
     </Compile>
@@ -110,8 +107,11 @@
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Cliente.cs" />
+    <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\Producto.cs" />
+    <Compile Include="Models\ProductoPedidoDTO.cs" />
+    <Compile Include="Models\SaborPedidoDTO.cs" />
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
     <Compile Include="Services\LoginService.cs" />
@@ -160,10 +160,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\cajeroControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\controlPrueba.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

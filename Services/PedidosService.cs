@@ -20,9 +20,8 @@ namespace sistema_gestion_heladeria.Services
             {
 
 
-                //Mensaje de salida para verlo nosotros
-                MessageBox.Show(
-     "ID Usuario recibido: " + pedido.id);
+             
+           
                 using (HttpClient client = new HttpClient())
                 {
                     string json =
@@ -64,6 +63,49 @@ namespace sistema_gestion_heladeria.Services
             }
         }
 
+
+
+
+        public async Task<List<PedidoActivoDTO>> ObtenerPedidosActivos()
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage respuesta =
+                        await client.GetAsync(
+                            ApiConfig.ApiUrl + "/pedidosActivos");
+
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        string json =
+                            await respuesta.Content.ReadAsStringAsync();
+
+                        List<PedidoActivoDTO> pedidos =
+                            JsonConvert.DeserializeObject<List<PedidoActivoDTO>>(json);
+
+                        return pedidos;
+                    }
+
+                    string error =
+                        await respuesta.Content.ReadAsStringAsync();
+
+                    Console.WriteLine(
+                        "Error al obtener pedidos activos: " +
+                        error);
+
+                    return new List<PedidoActivoDTO>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    "Error al obtener pedidos activos: " +
+                    ex.Message);
+
+                return new List<PedidoActivoDTO>();
+            }
+        }
 
 
 

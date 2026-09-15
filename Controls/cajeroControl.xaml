@@ -12,6 +12,14 @@
     <Grid Background="#F3F4F6"
       Margin="12">
 
+
+
+
+
+
+
+
+
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="10" />
@@ -281,6 +289,18 @@
                        VerticalAlignment="Center"/>
 
 
+
+
+
+
+                
+                
+                
+                
+                <!-- ================================================= -->
+                <!-- ****************TRABAJANDO ACA*********************-->
+                <!-- ================================================= -->
+
                 <ScrollViewer Grid.Row="1"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
@@ -291,6 +311,25 @@
 
             </Grid>
 
+        </Border>
+
+
+
+        <!-- MENSAJE DE ÉXITO -->
+        <Border x:Name="mensajeExito"
+        Visibility="Collapsed"
+        Background="#323232"
+        CornerRadius="6"
+        Padding="15,10"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Top"
+        Margin="0,20,0,0"
+        Panel.ZIndex="100">
+
+            <TextBlock x:Name="textoMensajeExito"
+               Foreground="White"
+               FontSize="13"
+               FontWeight="SemiBold"/>
         </Border>
 
     </Grid>
