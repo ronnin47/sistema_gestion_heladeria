@@ -109,6 +109,7 @@
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
+    <Compile Include="Models\PedidoProduccionDTO.cs" />
     <Compile Include="Models\Producto.cs" />
     <Compile Include="Models\ProductoPedidoDTO.cs" />
     <Compile Include="Models\SaborPedidoDTO.cs" />

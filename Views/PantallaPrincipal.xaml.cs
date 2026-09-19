@@ -60,7 +60,7 @@ namespace sistema_gestion_heladeria.Views
                     break;
 
                 case "produccion":
-                    PanelContenido.Content = new produccionControl();
+                    PanelContenido.Content = new produccionControl(usuario);
                     break;
                 case "repartidor":
                     PanelContenido.Content = new repartidorControl();

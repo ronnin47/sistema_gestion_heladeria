@@ -109,7 +109,101 @@ namespace sistema_gestion_heladeria.Services
 
 
 
+        //DEV-BRIAN
+        public async Task<List<PedidoProduccionDTO>> ObtenerPedidosProduccion()
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    HttpResponseMessage respuesta =
+                        await client.GetAsync(
+                            ApiConfig.ApiUrl + "/pedidos/produccion");
+
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        string json =
+                            await respuesta.Content.ReadAsStringAsync();
+
+                        List<PedidoProduccionDTO> pedidos =
+                            JsonConvert.DeserializeObject<List<PedidoProduccionDTO>>(json);
+
+                        return pedidos;
+                    }
+
+                    string error =
+                        await respuesta.Content.ReadAsStringAsync();
+
+                    Console.WriteLine(
+                        "Error al obtener pedidos de producción: " +
+                        error);
+
+                    return new List<PedidoProduccionDTO>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    "Error al obtener pedidos de producción: " +
+                    ex.Message);
+
+                return new List<PedidoProduccionDTO>();
+            }
+        }
+
+
+        public async Task<bool> CambiarEstado(int idVenta, string estado)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    var datos = new
+                    {
+                        id_venta = idVenta,
+                        estado = estado
+                    };
+
+                    string json =
+                        JsonConvert.SerializeObject(datos);
+
+                    StringContent contenido =
+                        new StringContent(
+                            json,
+                            Encoding.UTF8,
+                            "application/json");
+
+                    HttpResponseMessage respuesta =
+                        await client.PutAsync(
+                            ApiConfig.ApiUrl + "/pedidos/estado",
+                            contenido);
+
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+
+                    string error =
+                        await respuesta.Content.ReadAsStringAsync();
+
+                    Console.WriteLine(
+                        "Error al cambiar estado del pedido: " +
+                        error);
+
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    "Error al cambiar estado del pedido: " +
+                    ex.Message);
+
+                return false;
+            }
+        }
 
 
     }
+
 }
