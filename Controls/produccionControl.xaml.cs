@@ -63,7 +63,7 @@ namespace sistema_gestion_heladeria.Controls
                 
 
 
-                //probando solucion
+                //probando
 
                 // 3. Asignar los orígenes de datos
                 icPendientes.ItemsSource = pendientes;
