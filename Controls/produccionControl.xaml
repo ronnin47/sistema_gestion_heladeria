@@ -4,84 +4,142 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="1000"
-             Background="#F5F5F0">
+             d:DesignHeight="700" d:DesignWidth="1100"
+             Background="#F4F6F9">
 
-    <Grid Margin="20">
+    <UserControl.Resources>
+        <!-- Estilo personalizado para botones de acción -->
+        <Style x:Key="BtnEmpezarStyle" TargetType="Button">
+            <Setter Property="Background" Value="#E05275"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#C43D61"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#A82E4F"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="BtnListoStyle" TargetType="Button">
+            <Setter Property="Background" Value="#10B981"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#059669"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#047857"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ScrollViewer estilizado -->
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid>
+                            <ScrollContentPresenter Margin="{TemplateBinding Padding}"/>
+                            <ScrollBar x:Name="PART_VerticalScrollBar"
+                                       HorizontalAlignment="Right"
+                                       AutomationProperties.AutomationId="VerticalScrollBar"
+                                       Cursor="Arrow"
+                                       Maximum="{TemplateBinding ScrollableHeight}"
+                                       Minimum="0"
+                                       Value="{TemplateBinding VerticalOffset}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                                       Width="6"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- Columna 1: Pendientes -->
-        <Border Grid.Column="0" Margin="5">
+        <!-- ================= COLUMNA 1: PENDIENTES ================= -->
+        <Border Grid.Column="0" Background="#EBEFF5" CornerRadius="12" Margin="6" Padding="12">
             <DockPanel LastChildFill="True">
-                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
-                    <TextBlock Text="Pendientes" FontWeight="Bold" FontSize="16" Foreground="#444"/>
-                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
-                        <TextBlock x:Name="lblCantPendientes" Text="0" FontWeight="Bold" Foreground="#666"/>
+                <!-- Encabezado -->
+                <DockPanel DockPanel.Dock="Top" Margin="4,4,4,12">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="10" Height="10" CornerRadius="5" Background="#E05275" Margin="0,0,8,0"/>
+                        <TextBlock Text="Pendientes" FontWeight="Bold" FontSize="16" Foreground="#1F2937"/>
+                    </StackPanel>
+
+                    <Border Background="#FEE2E2" CornerRadius="12" HorizontalAlignment="Right" Padding="10,3">
+                        <TextBlock x:Name="lblCantPendientes" Text="0" FontWeight="Bold" FontSize="13" Foreground="#991B1B"/>
                     </Border>
                 </DockPanel>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <!-- Tarjetas Pendientes -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="2">
                     <ItemsControl x:Name="icPendientes">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="15">
+                                <Border Background="White" CornerRadius="10" Margin="0,0,0,12" Padding="0,0,0,0" BorderBrush="#E5E7EB" BorderThickness="1">
                                     <Border.Effect>
-                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
-                                    </Border.Effect>
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
-                                        <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
-                                        <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
-
-                                        <Button Content="Empezar preparación" Background="#D85A7F" Foreground="White" 
-                                                BorderThickness="0" Padding="12,6" Margin="0,10,0,0" HorizontalAlignment="Left"
-                                                Click="BtnEmpezar_Click" Tag="{Binding PedidoOriginal}"/>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
-            </DockPanel>
-        </Border>
-
-        <!-- Columna 2: En preparación -->
-        <Border Grid.Column="1" Margin="5">
-            <DockPanel LastChildFill="True">
-                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
-                    <TextBlock Text="En preparación" FontWeight="Bold" FontSize="16" Foreground="#444"/>
-                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
-                        <TextBlock x:Name="lblCantPreparacion" Text="0" FontWeight="Bold" Foreground="#666"/>
-                    </Border>
-                </DockPanel>
-
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="icEnPreparacion">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="0,15,15,15">
-                                    <Border.Effect>
-                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
                                     </Border.Effect>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="5"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Background="#D98A2B" CornerRadius="2,0,0,2"/>
 
-                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                            <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
-                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
-                                            <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
+                                        <!-- Indicador lateral de color -->
+                                        <Border Background="#E05275" CornerRadius="10,0,0,10"/>
 
-                                            <Button Content="Marcar listo" Background="#D85A7F" Foreground="White" 
-                                                    BorderThickness="0" Padding="12,6" Margin="0,10,0,0" HorizontalAlignment="Left"
-                                                    Click="BtnListo_Click" Tag="{Binding PedidoOriginal}"/>
+                                        <StackPanel Grid.Column="1" Margin="14">
+                                            <TextBlock Text="{Binding HeaderText}" Foreground="#6B7280" FontSize="11" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Foreground="#111827" Margin="0,4,0,6"/>
+
+                                            <Border Background="#F9FAFB" CornerRadius="6" Padding="8" Margin="0,2,0,10">
+                                                <TextBlock Text="{Binding DetalleFormateado}" Foreground="#374151" FontSize="13" TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Button Content="Empezar preparación" 
+                                                    Style="{StaticResource BtnEmpezarStyle}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Click="BtnEmpezar_Click" 
+                                                    Tag="{Binding PedidoOriginal}"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -92,35 +150,102 @@
             </DockPanel>
         </Border>
 
-        <!-- Columna 3: Listos -->
-        <Border Grid.Column="2" Margin="5">
+        <!-- ================= COLUMNA 2: EN PREPARACIÓN ================= -->
+        <Border Grid.Column="1" Background="#EBEFF5" CornerRadius="12" Margin="6" Padding="12">
             <DockPanel LastChildFill="True">
-                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
-                    <TextBlock Text="Listos" FontWeight="Bold" FontSize="16" Foreground="#444"/>
-                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
-                        <TextBlock x:Name="lblCantListos" Text="0" FontWeight="Bold" Foreground="#666"/>
+                <!-- Encabezado -->
+                <DockPanel DockPanel.Dock="Top" Margin="4,4,4,12">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="10" Height="10" CornerRadius="5" Background="#D97706" Margin="0,0,8,0"/>
+                        <TextBlock Text="En preparación" FontWeight="Bold" FontSize="16" Foreground="#1F2937"/>
+                    </StackPanel>
+
+                    <Border Background="#FEF3C7" CornerRadius="12" HorizontalAlignment="Right" Padding="10,3">
+                        <TextBlock x:Name="lblCantPreparacion" Text="0" FontWeight="Bold" FontSize="13" Foreground="#92400E"/>
                     </Border>
                 </DockPanel>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl x:Name="icListos">
+                <!-- Tarjetas En Preparación -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="2">
+                    <ItemsControl x:Name="icEnPreparacion">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="0,15,15,15">
+                                <Border Background="White" CornerRadius="10" Margin="0,0,0,12" Padding="0,0,0,0" BorderBrush="#E5E7EB" BorderThickness="1">
                                     <Border.Effect>
-                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
                                     </Border.Effect>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="5"/>
                                             <ColumnDefinition Width="*"/>
                                         </Grid.ColumnDefinitions>
-                                        <Border Background="#4A7C9D" CornerRadius="2,0,0,2"/>
 
-                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                            <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
-                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
-                                            <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
+                                        <!-- Indicador lateral de color -->
+                                        <Border Background="#D97706" CornerRadius="10,0,0,10"/>
+
+                                        <StackPanel Grid.Column="1" Margin="14">
+                                            <TextBlock Text="{Binding HeaderText}" Foreground="#6B7280" FontSize="11" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Foreground="#111827" Margin="0,4,0,6"/>
+
+                                            <Border Background="#F9FAFB" CornerRadius="6" Padding="8" Margin="0,2,0,10">
+                                                <TextBlock Text="{Binding DetalleFormateado}" Foreground="#374151" FontSize="13" TextWrapping="Wrap"/>
+                                            </Border>
+
+                                            <Button Content="Marcar listo" 
+                                                    Style="{StaticResource BtnListoStyle}"
+                                                    HorizontalAlignment="Stretch"
+                                                    Click="BtnListo_Click" 
+                                                    Tag="{Binding PedidoOriginal}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- ================= COLUMNA 3: LISTOS ================= -->
+        <Border Grid.Column="2" Background="#EBEFF5" CornerRadius="12" Margin="6" Padding="12">
+            <DockPanel LastChildFill="True">
+                <!-- Encabezado -->
+                <DockPanel DockPanel.Dock="Top" Margin="4,4,4,12">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Width="10" Height="10" CornerRadius="5" Background="#10B981" Margin="0,0,8,0"/>
+                        <TextBlock Text="Listos" FontWeight="Bold" FontSize="16" Foreground="#1F2937"/>
+                    </StackPanel>
+
+                    <Border Background="#D1FAE5" CornerRadius="12" HorizontalAlignment="Right" Padding="10,3">
+                        <TextBlock x:Name="lblCantListos" Text="0" FontWeight="Bold" FontSize="13" Foreground="#065F46"/>
+                    </Border>
+                </DockPanel>
+
+                <!-- Tarjetas Listos -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="2">
+                    <ItemsControl x:Name="icListos">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="10" Margin="0,0,0,12" Padding="0,0,0,0" BorderBrush="#E5E7EB" BorderThickness="1">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="8" ShadowDepth="2" Opacity="0.05" Color="#000000"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="5"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Indicador lateral de color -->
+                                        <Border Background="#10B981" CornerRadius="10,0,0,10"/>
+
+                                        <StackPanel Grid.Column="1" Margin="14">
+                                            <TextBlock Text="{Binding HeaderText}" Foreground="#6B7280" FontSize="11" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Foreground="#111827" Margin="0,4,0,6"/>
+
+                                            <Border Background="#F9FAFB" CornerRadius="6" Padding="8">
+                                                <TextBlock Text="{Binding DetalleFormateado}" Foreground="#374151" FontSize="13" TextWrapping="Wrap"/>
+                                            </Border>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
