@@ -29,6 +29,8 @@ namespace sistema_gestion_heladeria.Controls
 
         string medioPagoSeleccionado = "Efectivo";
 
+        string tipoEntregaSeleccionado = "Local";
+
         PedidosService pedidosService = new PedidosService();
 
 
@@ -50,6 +52,9 @@ namespace sistema_gestion_heladeria.Controls
 
             InitializeComponent();
 
+
+         
+
             Loaded += cajeroControl_Loaded;
         }
 
@@ -68,9 +73,22 @@ namespace sistema_gestion_heladeria.Controls
                 "Pedidos recibidos: " + pedidosActivos.Count
             );
             */
+
+            await CargarPedidosCompletadosHoy();
+
             RenderizarPedidosActivos();
         }
 
+
+
+        private async Task CargarPedidosCompletadosHoy()
+        {
+            List<PedidoActivoDTO> pedidosCompletadosHoy =
+                await pedidosService.ObtenerPedidosCompletadosHoy();
+
+            txtCompletadosHoy.Text =
+                pedidosCompletadosHoy.Count.ToString();
+        }
         private void RenderizarPedidosActivos()
         {
             panelPedidosActivos.Children.Clear();
@@ -266,6 +284,36 @@ namespace sistema_gestion_heladeria.Controls
 
 
                 pie.Children.Add(bordeEstado);
+
+
+                // BOTÓN MARCAR ENTREGADO
+                if (pedido.estado == "Listo")
+                {
+                    Button botonEntregado = new Button
+                    {
+                        Content = "Marcar entregado",
+                        FontSize = 10,
+                        FontWeight = FontWeights.SemiBold,
+                        Foreground = Brushes.White,
+                        Background = new SolidColorBrush(
+                            Color.FromRgb(190, 65, 65)),
+                        BorderBrush = new SolidColorBrush(
+                            Color.FromRgb(165, 50, 50)),
+                        BorderThickness = new Thickness(1),
+                        Padding = new Thickness(7, 3, 7, 3),
+                        Margin = new Thickness(8, 0, 8, 0),
+                        Cursor = System.Windows.Input.Cursors.Hand,
+                        Tag = pedido
+                    };
+
+                    botonEntregado.Click += MarcarEntregado_Click;
+
+                    Grid.SetColumn(botonEntregado, 1);
+
+                    pie.Children.Add(botonEntregado);
+                }
+
+
                 pie.Children.Add(total);
 
                 contenido.Children.Add(pie);
@@ -747,19 +795,36 @@ namespace sistema_gestion_heladeria.Controls
                 FontWeights.SemiBold;
         }
 
+       
+
+
         private PedidoCaja CrearPedidoCaja()
         {
             PedidoCaja pedido =
                 new PedidoCaja();
 
             pedido.cliente_nombre =
-                "Cliente mostrador";
+                txtNombreEntrega.Text.Trim();
 
             pedido.tipo_entrega =
-                "Local";
+                tipoEntregaSeleccionado;
 
-            pedido.direccion =
-                null;
+            if (tipoEntregaSeleccionado == "Delivery")
+            {
+                pedido.telefono =
+                    txtTelefonoEntrega.Text.Trim();
+
+                pedido.direccion =
+                    txtDireccionEntrega.Text.Trim();
+            }
+            else
+            {
+                pedido.telefono =
+                    null;
+
+                pedido.direccion =
+                    null;
+            }
 
             pedido.medio_pago =
                 medioPagoSeleccionado;
@@ -775,7 +840,6 @@ namespace sistema_gestion_heladeria.Controls
 
             return pedido;
         }
-
 
 
         private decimal ObtenerTotalPedido()
@@ -868,6 +932,10 @@ namespace sistema_gestion_heladeria.Controls
                 Visibility.Collapsed;
         }
 
+
+
+
+
         private async void CobrarYEnviar_Click(
     object sender,
     RoutedEventArgs e)
@@ -880,8 +948,7 @@ namespace sistema_gestion_heladeria.Controls
                 return;
             }
 
-            PedidoCaja pedido =
-                CrearPedidoCaja();
+            PedidoCaja pedido = CrearPedidoCaja();
 
            
 
@@ -924,6 +991,105 @@ namespace sistema_gestion_heladeria.Controls
                     Button.ClickEvent));
         }
 
+
+
+
+
+
+        private async void MarcarEntregado_Click(
+        object sender,
+        RoutedEventArgs e)
+        {
+            Button boton = sender as Button;
+
+            if (boton == null)
+                return;
+
+            PedidoActivoDTO pedido =
+                boton.Tag as PedidoActivoDTO;
+
+            if (pedido == null)
+                return;
+
+            bool cambiado =
+                await pedidosService.CambiarEstado(
+                    pedido.id_venta,
+                    "Entregado");
+
+            if (!cambiado)
+            {
+                MessageBox.Show(
+                    "No se pudo marcar el pedido como entregado.");
+
+                return;
+            }
+
+            pedidosActivos =
+                await pedidosService.ObtenerPedidosActivos();
+
+
+            // Actualizar cantidad de pedidos completados hoy
+            await CargarPedidosCompletadosHoy();
+
+            RenderizarPedidosActivos();
+        }
+
+
+
+        private void TipoEntrega_Click(object sender, RoutedEventArgs e)
+        {
+            Button boton = sender as Button;
+
+            if (boton == null)
+                return;
+
+            if (boton == btnEntregaLocal)
+            {
+                tipoEntregaSeleccionado = "Local";
+
+                btnEntregaLocal.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#3F7D4A"));
+
+                btnEntregaLocal.Foreground = Brushes.White;
+
+                btnDelivery.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#F5F6F7"));
+
+                btnDelivery.Foreground = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#454B52"));
+
+                txtNombreEntrega.Visibility = Visibility.Visible;
+
+                lblTelefonoEntrega.Visibility = Visibility.Collapsed;
+                txtTelefonoEntrega.Visibility = Visibility.Collapsed;
+
+                lblDireccionEntrega.Visibility = Visibility.Collapsed;
+                txtDireccionEntrega.Visibility = Visibility.Collapsed;
+            }
+            else if (boton == btnDelivery)
+            {
+                tipoEntregaSeleccionado = "Delivery";
+
+                btnDelivery.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#3F7D4A"));
+
+                btnDelivery.Foreground = Brushes.White;
+
+                btnEntregaLocal.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#F5F6F7"));
+
+                btnEntregaLocal.Foreground = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString("#454B52"));
+
+                txtNombreEntrega.Visibility = Visibility.Visible;
+
+                lblTelefonoEntrega.Visibility = Visibility.Visible;
+                txtTelefonoEntrega.Visibility = Visibility.Visible;
+
+                lblDireccionEntrega.Visibility = Visibility.Visible;
+                txtDireccionEntrega.Visibility = Visibility.Visible;
+            }
+        }
 
     }
 }

@@ -84,15 +84,16 @@
             <!-- ================================================= -->
 
             <Border Grid.Row="2"
-                Background="White"
-                BorderBrush="#D9DDE3"
-                BorderThickness="1"
-                CornerRadius="6"
-                Padding="8">
+        Background="White"
+        BorderBrush="#D9DDE3"
+        BorderThickness="1"
+        CornerRadius="6"
+        Padding="8">
 
                 <Grid>
 
                     <Grid.RowDefinitions>
+
                         <!-- titulo -->
                         <RowDefinition Height="25"/>
 
@@ -105,6 +106,9 @@
                         <!-- total -->
                         <RowDefinition Height="42"/>
 
+                        <!-- tipo de entrega -->
+                        <RowDefinition Height="Auto"/>
+
                         <!-- medios de pago -->
                         <RowDefinition Height="42"/>
 
@@ -114,39 +118,47 @@
                     </Grid.RowDefinitions>
 
 
+                    <!-- ================================================= -->
                     <!-- TITULO -->
+                    <!-- ================================================= -->
 
                     <TextBlock Grid.Row="0"
-                           Text="PEDIDO ACTUAL"
-                           FontSize="13"
-                           FontWeight="SemiBold"
-                           Foreground="#454B52"
-                           VerticalAlignment="Center"/>
+                   Text="PEDIDO ACTUAL"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="#454B52"
+                   VerticalAlignment="Center"/>
 
 
+                    <!-- ================================================= -->
                     <!-- PRODUCTOS DEL PEDIDO -->
+                    <!-- ================================================= -->
 
                     <ScrollViewer Grid.Row="1"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
 
                         <StackPanel x:Name="panelPedidoActual"/>
 
                     </ScrollViewer>
 
 
+                    <!-- ================================================= -->
                     <!-- SEPARADOR -->
+                    <!-- ================================================= -->
 
                     <Border Grid.Row="2"
-                        Background="#E5E7EA"
-                        Height="1"
-                        Margin="0,4,0,4"/>
+                Background="#E5E7EA"
+                Height="1"
+                Margin="0,4,0,4"/>
 
 
+                    <!-- ================================================= -->
                     <!-- TOTAL -->
+                    <!-- ================================================= -->
 
                     <Grid Grid.Row="3"
-                      Margin="2,0,2,0">
+              Margin="2,0,2,0">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -154,27 +166,167 @@
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0"
-                               Text="TOTAL"
-                               FontSize="13"
-                               FontWeight="SemiBold"
-                               Foreground="#555B62"
-                               VerticalAlignment="Center"/>
+                       Text="TOTAL"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       Foreground="#555B62"
+                       VerticalAlignment="Center"/>
 
                         <TextBlock x:Name="txtTotalPedido"
-                               Grid.Column="1"
-                               Text="$ 0,00"
-                               FontSize="19"
-                               FontWeight="Bold"
-                               Foreground="#30363D"
-                               VerticalAlignment="Center"/>
+                       Grid.Column="1"
+                       Text="$ 0,00"
+                       FontSize="19"
+                       FontWeight="Bold"
+                       Foreground="#30363D"
+                       VerticalAlignment="Center"/>
 
                     </Grid>
 
 
-                    <!-- MEDIOS DE PAGO -->
+                    <!-- ================================================= -->
+                    <!-- TIPO DE ENTREGA -->
+                    <!-- ================================================= -->
 
-                    <Grid Grid.Row="4"
-                      Margin="0,3,0,3">
+                    <Border Grid.Row="4"
+                Background="#F8F9FA"
+                BorderBrush="#D9DDE3"
+                BorderThickness="1"
+                CornerRadius="5"
+                Margin="2,2,2,4"
+                Padding="6">
+
+                        <StackPanel>
+
+                            <TextBlock Text="TIPO DE ENTREGA"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="#555B62"
+                           Margin="0,0,0,5"/>
+
+
+                            <!-- BOTONES -->
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+
+                                <Button x:Name="btnEntregaLocal"
+                            Grid.Column="0"
+                            Content="Entrega en local"
+                            Height="30"
+                            Margin="0,0,3,0"
+                            Background="#3F7D4A"
+                            Foreground="White"
+                            BorderBrush="#356B3F"
+                            BorderThickness="1"
+                            FontSize="11"
+                            FontWeight="SemiBold"
+                            Cursor="Hand"
+                            Click="TipoEntrega_Click"/>
+
+
+                                <Button x:Name="btnDelivery"
+                            Grid.Column="1"
+                            Content="Delivery"
+                            Height="30"
+                            Margin="3,0,0,0"
+                            Background="#F5F6F7"
+                            Foreground="#454B52"
+                            BorderBrush="#D9DDE3"
+                            BorderThickness="1"
+                            FontSize="11"
+                            Cursor="Hand"
+                            Click="TipoEntrega_Click"/>
+
+                            </Grid>
+
+
+                            <!-- ================================================= -->
+                            <!-- DATOS DE ENTREGA -->
+                            <!-- ================================================= -->
+
+                            <!-- ================================================= -->
+                            <!-- DATOS DE ENTREGA -->
+                            <!-- ================================================= -->
+
+                            <StackPanel x:Name="panelDatosEntrega"
+            Margin="0,7,0,0">
+
+                                <!-- NOMBRE -->
+
+                                <TextBlock Text="Nombre del cliente"
+               FontSize="10"
+               Foreground="#555B62"
+               Margin="2,0,0,2"/>
+
+                                <TextBox x:Name="txtNombreEntrega"
+             Height="28"
+             Margin="0,0,0,5"
+             Padding="7,0"
+             VerticalContentAlignment="Center"
+             FontSize="11"
+             Foreground="#454B52"
+             BorderBrush="#D9DDE3"
+             BorderThickness="1"/>
+
+
+                                <!-- TELEFONO -->
+
+                                <TextBlock x:Name="lblTelefonoEntrega"
+               Text="Teléfono"
+               FontSize="10"
+               Foreground="#555B62"
+               Margin="2,0,0,2"
+               Visibility="Collapsed"/>
+
+                                <TextBox x:Name="txtTelefonoEntrega"
+             Height="28"
+             Margin="0,0,0,5"
+             Padding="7,0"
+             VerticalContentAlignment="Center"
+             FontSize="11"
+             Foreground="#454B52"
+             BorderBrush="#D9DDE3"
+             BorderThickness="1"
+             Visibility="Collapsed"/>
+
+
+                                <!-- DIRECCION -->
+
+                                <TextBlock x:Name="lblDireccionEntrega"
+               Text="Dirección de entrega"
+               FontSize="10"
+               Foreground="#555B62"
+               Margin="2,0,0,2"
+               Visibility="Collapsed"/>
+
+                                <TextBox x:Name="txtDireccionEntrega"
+             Height="28"
+             Padding="7,0"
+             VerticalContentAlignment="Center"
+             FontSize="11"
+             Foreground="#454B52"
+             BorderBrush="#D9DDE3"
+             BorderThickness="1"
+             Visibility="Collapsed"/>
+
+                            </StackPanel>
+
+                        </StackPanel>
+
+                    </Border>
+
+
+                    <!-- ================================================= -->
+                    <!-- MEDIOS DE PAGO -->
+                    <!-- ================================================= -->
+
+                    <Grid Grid.Row="5"
+              Margin="0,3,0,3">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -185,74 +337,80 @@
 
 
                         <Button x:Name="btnEfectivo"
-        Grid.Column="0"
-        Content="Efectivo"
-        Margin="2"
-        Height="34"
-        Background="#3F7D4A"
-        Foreground="White"
-        BorderBrush="#356B3F"
-        BorderThickness="1"
-        FontSize="11"
-        FontWeight="SemiBold"
-        Cursor="Hand"
-        Click="MedioPago_Click"/>
+                    Grid.Column="0"
+                    Content="Efectivo"
+                    Margin="2"
+                    Height="34"
+                    Background="#3F7D4A"
+                    Foreground="White"
+                    BorderBrush="#356B3F"
+                    BorderThickness="1"
+                    FontSize="11"
+                    FontWeight="SemiBold"
+                    Cursor="Hand"
+                    Click="MedioPago_Click"/>
+
 
                         <Button x:Name="btnTarjeta"
-        Grid.Column="1"
-        Content="Tarjeta"
-        Margin="2"
-        Height="34"
-        Background="#F5F6F7"
-        Foreground="#454B52"
-        BorderBrush="#D9DDE3"
-        BorderThickness="1"
-        FontSize="11"
-        Cursor="Hand"
-        Click="MedioPago_Click"/>
+                    Grid.Column="1"
+                    Content="Tarjeta"
+                    Margin="2"
+                    Height="34"
+                    Background="#F5F6F7"
+                    Foreground="#454B52"
+                    BorderBrush="#D9DDE3"
+                    BorderThickness="1"
+                    FontSize="11"
+                    Cursor="Hand"
+                    Click="MedioPago_Click"/>
+
 
                         <Button x:Name="btnTransferencia"
-        Grid.Column="2"
-        Content="Transferencia"
-        Margin="2"
-        Height="34"
-        Background="#F5F6F7"
-        Foreground="#454B52"
-        BorderBrush="#D9DDE3"
-        BorderThickness="1"
-        FontSize="10"
-        Cursor="Hand"
-        Click="MedioPago_Click"/>
+                    Grid.Column="2"
+                    Content="Transferencia"
+                    Margin="2"
+                    Height="34"
+                    Background="#F5F6F7"
+                    Foreground="#454B52"
+                    BorderBrush="#D9DDE3"
+                    BorderThickness="1"
+                    FontSize="10"
+                    Cursor="Hand"
+                    Click="MedioPago_Click"/>
+
 
                         <Button x:Name="btnMercadoPago"
-        Grid.Column="3"
-        Content="Mercado Pago"
-        Margin="2"
-        Height="34"
-        Background="#F5F6F7"
-        Foreground="#454B52"
-        BorderBrush="#D9DDE3"
-        BorderThickness="1"
-        FontSize="10"
-        Cursor="Hand"
-        Click="MedioPago_Click"/>
+                    Grid.Column="3"
+                    Content="Mercado Pago"
+                    Margin="2"
+                    Height="34"
+                    Background="#F5F6F7"
+                    Foreground="#454B52"
+                    BorderBrush="#D9DDE3"
+                    BorderThickness="1"
+                    FontSize="10"
+                    Cursor="Hand"
+                    Click="MedioPago_Click"/>
+
                     </Grid>
 
 
+                    <!-- ================================================= -->
                     <!-- COBRAR Y ENVIAR -->
+                    <!-- ================================================= -->
 
-                    <Button Grid.Row="5"
-        Content="COBRAR Y ENVIAR A COCINA"
-        Margin="2,4,2,0"
-        Height="36"
-        Background="#3F7D4A"
-        Foreground="White"
-        BorderBrush="#356B3F"
-        BorderThickness="1"
-        FontSize="12"
-        FontWeight="SemiBold"
-        Cursor="Hand"
-        Click="CobrarYEnviar_Click"/>
+                    <Button Grid.Row="6"
+                Content="COBRAR Y ENVIAR A COCINA"
+                Margin="2,4,2,0"
+                Height="36"
+                Background="#3F7D4A"
+                Foreground="White"
+                BorderBrush="#356B3F"
+                BorderThickness="1"
+                FontSize="12"
+                FontWeight="SemiBold"
+                Cursor="Hand"
+                Click="CobrarYEnviar_Click"/>
 
                 </Grid>
 
@@ -266,48 +424,78 @@
         <!-- ================================================= -->
 
         <Border Grid.Column="2"
-            Background="White"
-            BorderBrush="#D9DDE3"
-            BorderThickness="1"
-            CornerRadius="6"
-            Padding="10"
-            Margin="0,0,2,0">
+        Background="White"
+        BorderBrush="#D9DDE3"
+        BorderThickness="1"
+        CornerRadius="6"
+        Padding="10"
+        Margin="0,0,2,0">
 
             <Grid>
 
                 <Grid.RowDefinitions>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="100"/>
                 </Grid.RowDefinitions>
 
 
                 <TextBlock Grid.Row="0"
-                       Text="PEDIDOS ACTIVOS"
-                       FontSize="13"
-                       FontWeight="SemiBold"
-                       Foreground="#454B52"
-                       VerticalAlignment="Center"/>
+                   Text="PEDIDOS ACTIVOS"
+                   FontSize="13"
+                   FontWeight="SemiBold"
+                   Foreground="#454B52"
+                   VerticalAlignment="Center"/>
 
-
-
-
-
-
-                
-                
-                
-                
-                <!-- ================================================= -->
-                <!-- ****************TRABAJANDO ACA*********************-->
-                <!-- ================================================= -->
 
                 <ScrollViewer Grid.Row="1"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
 
                     <StackPanel x:Name="panelPedidosActivos"/>
 
                 </ScrollViewer>
+
+
+                <!-- COMPLETADOS HOY -->
+                <!-- COMPLETADOS HOY -->
+                <Border Grid.Row="2"
+        Background="#F5F6F7"
+        BorderBrush="#D9DDE3"
+        BorderThickness="1"
+        CornerRadius="5"
+        Margin="0,6,0,0"
+        Padding="8">
+
+                    <StackPanel HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+
+                        <!-- TÍTULO -->
+                        <TextBlock Text="COMPLETADOS HOY"
+                   FontSize="14"
+                   FontWeight="SemiBold"
+                   Foreground="BLACK"
+                   HorizontalAlignment="Center"/>
+
+                        <!-- NÚMERO -->
+                        <TextBlock x:Name="txtCompletadosHoy"
+                   Text="0"
+                   FontSize="24"
+                   FontWeight="Bold"
+                   Foreground="#3F7D4A"
+                   HorizontalAlignment="Center"
+                   Margin="0,2,0,0"/>
+
+                        <!-- DESCRIPCIÓN -->
+                        <TextBlock Text="pedidos cerrados"
+                   FontSize="9"
+                   Foreground="#8A9096"
+                   HorizontalAlignment="Center"
+                   Margin="0,-2,0,0"/>
+
+                    </StackPanel>
+
+                </Border>
 
             </Grid>
 

@@ -15,6 +15,8 @@ namespace sistema_gestion_heladeria.Models
 
         public string direccion { get; set; }
 
+        public string telefono { get; set; }
+
         public string medio_pago { get; set; }
 
         public decimal total { get; set; }
