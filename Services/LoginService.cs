@@ -51,7 +51,7 @@ namespace sistema_gestion_heladeria.Services
                 if (resultado == null || resultado.usuario == null)
                     return null;
 
-                MessageBox.Show($"{resultado.usuario.IdUsuario}");
+                //MessageBox.Show($"{resultado.usuario.IdUsuario}");
 
                 return resultado.usuario;
             }
