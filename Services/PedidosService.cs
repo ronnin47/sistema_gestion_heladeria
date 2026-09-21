@@ -175,7 +175,7 @@ namespace sistema_gestion_heladeria.Services
 
                     HttpResponseMessage respuesta =
                         await client.PutAsync(
-                            ApiConfig.ApiUrl + "/pedidos/estado",
+                            ApiConfig.ApiUrl + "/updatePedidos/estado",
                             contenido);
 
                     if (respuesta.IsSuccessStatusCode)
