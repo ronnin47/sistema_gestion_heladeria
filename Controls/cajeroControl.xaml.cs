@@ -795,7 +795,7 @@ namespace sistema_gestion_heladeria.Controls
                 FontWeights.SemiBold;
         }
 
-       
+
 
 
         private PedidoCaja CrearPedidoCaja()
@@ -803,8 +803,16 @@ namespace sistema_gestion_heladeria.Controls
             PedidoCaja pedido =
                 new PedidoCaja();
 
-            pedido.cliente_nombre =
+            string nombreCliente =
                 txtNombreEntrega.Text.Trim();
+
+            if (string.IsNullOrEmpty(nombreCliente))
+            {
+                nombreCliente = "Cliente mostrador";
+            }
+
+            pedido.cliente_nombre =
+                nombreCliente;
 
             pedido.tipo_entrega =
                 tipoEntregaSeleccionado;
@@ -840,7 +848,6 @@ namespace sistema_gestion_heladeria.Controls
 
             return pedido;
         }
-
 
         private decimal ObtenerTotalPedido()
         {
