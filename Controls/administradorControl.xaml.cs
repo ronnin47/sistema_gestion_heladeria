@@ -27,6 +27,7 @@ namespace sistema_gestion_heladeria.Controls
             CargarResumen();
         }
 
+        //probando
         private void CargarDatosEjemplo()
         {
             clientes.Add(new ClienteAdmin { Nombre = "Marta Gómez", Telefono = "11-4455-2211", Direccion = "Av. Maipú 1450" });
