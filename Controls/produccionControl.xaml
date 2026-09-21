@@ -3,10 +3,132 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:sistema_gestion_heladeria.Controls"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock>Pantalla Producción</TextBlock>
+             d:DesignHeight="600" d:DesignWidth="1000"
+             Background="#F5F5F0">
+
+    <Grid Margin="20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Columna 1: Pendientes -->
+        <Border Grid.Column="0" Margin="5">
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
+                    <TextBlock Text="Pendientes" FontWeight="Bold" FontSize="16" Foreground="#444"/>
+                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
+                        <TextBlock x:Name="lblCantPendientes" Text="0" FontWeight="Bold" Foreground="#666"/>
+                    </Border>
+                </DockPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="icPendientes">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="15">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
+                                        <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
+                                        <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
+
+                                        <Button Content="Empezar preparación" Background="#D85A7F" Foreground="White" 
+                                                BorderThickness="0" Padding="12,6" Margin="0,10,0,0" HorizontalAlignment="Left"
+                                                Click="BtnEmpezar_Click" Tag="{Binding PedidoOriginal}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Columna 2: En preparación -->
+        <Border Grid.Column="1" Margin="5">
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
+                    <TextBlock Text="En preparación" FontWeight="Bold" FontSize="16" Foreground="#444"/>
+                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
+                        <TextBlock x:Name="lblCantPreparacion" Text="0" FontWeight="Bold" Foreground="#666"/>
+                    </Border>
+                </DockPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="icEnPreparacion">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="0,15,15,15">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Background="#D98A2B" CornerRadius="2,0,0,2"/>
+
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                            <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
+                                            <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
+
+                                            <Button Content="Marcar listo" Background="#D85A7F" Foreground="White" 
+                                                    BorderThickness="0" Padding="12,6" Margin="0,10,0,0" HorizontalAlignment="Left"
+                                                    Click="BtnListo_Click" Tag="{Binding PedidoOriginal}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
+
+        <!-- Columna 3: Listos -->
+        <Border Grid.Column="2" Margin="5">
+            <DockPanel LastChildFill="True">
+                <DockPanel DockPanel.Dock="Top" Margin="0,0,0,15">
+                    <TextBlock Text="Listos" FontWeight="Bold" FontSize="16" Foreground="#444"/>
+                    <Border Background="#E0E0E0" CornerRadius="10" HorizontalAlignment="Right" Padding="8,2">
+                        <TextBlock x:Name="lblCantListos" Text="0" FontWeight="Bold" Foreground="#666"/>
+                    </Border>
+                </DockPanel>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl x:Name="icListos">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="8" Margin="0,0,0,10" Padding="0,15,15,15">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="1" Opacity="0.1"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border Background="#4A7C9D" CornerRadius="2,0,0,2"/>
+
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                            <TextBlock Text="{Binding HeaderText}" Foreground="#888" FontSize="12"/>
+                                            <TextBlock Text="{Binding ClienteNombre}" FontWeight="Bold" FontSize="15" Margin="0,3"/>
+                                            <TextBlock Text="{Binding DetalleFormateado}" Foreground="#444" Margin="0,3"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </DockPanel>
+        </Border>
     </Grid>
 </UserControl>
