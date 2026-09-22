@@ -25,7 +25,7 @@ namespace sistema_gestion_heladeria.Controls
             new Dictionary<int, int>();
 
 
-       
+       //kasndlkjasdjasd
 
         string medioPagoSeleccionado = "Efectivo";
 
