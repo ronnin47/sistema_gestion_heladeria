@@ -1,4 +1,4 @@
-<UserControl x:Class="sistema_gestion_heladeria.Controls.administradorControl"
+﻿<UserControl x:Class="sistema_gestion_heladeria.Controls.administradorControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -32,6 +32,7 @@
         </Style>
         <Style TargetType="DataGrid">
             <Setter Property="AutoGenerateColumns" Value="False"/><Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/><Setter Property="SelectionMode" Value="Single"/><Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="HeadersVisibility" Value="Column"/><Setter Property="GridLinesVisibility" Value="Horizontal"/>
             <Setter Property="HorizontalGridLinesBrush" Value="#E2E0D8"/><Setter Property="BorderThickness" Value="0"/>
             <Setter Property="RowHeight" Value="36"/><Setter Property="ColumnHeaderHeight" Value="32"/>
@@ -74,43 +75,124 @@
                     </Border>
                 </StackPanel>
 
-                <!-- CLIENTES -->
+                <!-- CLIENTES: datos asociados a ventas; no existe una entidad clientes independiente -->
                 <Border x:Name="PanelClientes" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
-                    <StackPanel><TextBlock Text="Clientes" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgClientes" Height="230"><DataGrid.Columns><DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/><DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/><DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="2*"/></DataGrid.Columns></DataGrid>
-                        <Grid Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="2*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBox x:Name="TxtClienteNombre" Grid.Column="0" Margin="0,0,8,0"/><TextBox x:Name="TxtClienteTelefono" Grid.Column="1" Margin="0,0,8,0"/><TextBox x:Name="TxtClienteDireccion" Grid.Column="2" Margin="0,0,8,0"/><Button Grid.Column="3" Content="Agregar cliente" Style="{StaticResource PrimaryButton}" Click="AgregarCliente_Click"/></Grid>
-                        <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EliminarCliente_Click"/>
+                    <StackPanel>
+                        <TextBlock Text="Clientes asociados a ventas" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                        <TextBlock Text="Los datos del cliente pertenecen a la factura/entrega de cada venta." Foreground="#6B6F6A" FontSize="11" Margin="0,0,0,12"/>
+                        <DataGrid x:Name="DgClientes" Height="250" SelectionChanged="DgClientes_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Venta" Binding="{Binding IdVenta}" Width="70"/>
+                                <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="130"/>
+                                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>
+                                <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/>
+                                <DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="2*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="2*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Nombre" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtClienteNombre"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Teléfono" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtClienteTelefono"/></StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0"><TextBlock Text="Dirección" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtClienteDireccion"/></StackPanel>
+                            <Button Grid.Column="3" Content="Modificar datos" Style="{StaticResource PrimaryButton}" VerticalAlignment="Bottom" Click="ModificarCliente_Click"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 
                 <!-- PROVEEDORES -->
                 <Border x:Name="PanelProveedores" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
-                    <StackPanel><TextBlock Text="Proveedores" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgProveedores" Height="230"><DataGrid.Columns><DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/><DataGridTextColumn Header="Rubro" Binding="{Binding Rubro}" Width="2*"/><DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/></DataGrid.Columns></DataGrid>
-                        <Grid Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBox x:Name="TxtProveedorNombre" Grid.Column="0" Margin="0,0,8,0"/><TextBox x:Name="TxtProveedorRubro" Grid.Column="1" Margin="0,0,8,0"/><TextBox x:Name="TxtProveedorTelefono" Grid.Column="2" Margin="0,0,8,0"/><Button Grid.Column="3" Content="Agregar proveedor" Style="{StaticResource PrimaryButton}" Click="AgregarProveedor_Click"/></Grid>
-                        <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EliminarProveedor_Click"/>
+                    <StackPanel>
+                        <TextBlock Text="Proveedores" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <DataGrid x:Name="DgProveedores" Height="240" SelectionChanged="DgProveedores_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding IdProveedor}" Width="55"/>
+                                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>
+                                <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/>
+                                <DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="2*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="2*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Nombre" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProveedorNombre"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Teléfono" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProveedorTelefono"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Dirección" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProveedorDireccion"/></StackPanel>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                            <Button Content="Agregar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="AgregarProveedor_Click"/>
+                            <Button Content="Modificar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="ModificarProveedor_Click"/>
+                            <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" Click="EliminarProveedor_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- EMPLEADOS -->
+                <!-- EMPLEADOS / USUARIOS -->
                 <Border x:Name="PanelEmpleados" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
-                    <StackPanel><TextBlock Text="Empleados" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgEmpleados" Height="230"><DataGrid.Columns><DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/><DataGridTextColumn Header="Rol" Binding="{Binding Rol}" Width="*"/></DataGrid.Columns></DataGrid>
-                        <Grid Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBox x:Name="TxtEmpleadoNombre" Grid.Column="0" Margin="0,0,8,0"/><ComboBox x:Name="CmbEmpleadoRol" Grid.Column="1" Margin="0,0,8,0"><ComboBoxItem Content="Cajero"/><ComboBoxItem Content="Producción"/><ComboBoxItem Content="Repartidor"/><ComboBoxItem Content="Administración"/></ComboBox><Button Grid.Column="2" Content="Agregar empleado" Style="{StaticResource PrimaryButton}" Click="AgregarEmpleado_Click"/></Grid>
-                        <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EliminarEmpleado_Click"/>
+                    <StackPanel>
+                        <TextBlock Text="Empleados / Usuarios" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <DataGrid x:Name="DgEmpleados" Height="230" SelectionChanged="DgEmpleados_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="45"/>
+                                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                                <DataGridTextColumn Header="Apellido" Binding="{Binding Apellido}" Width="*"/>
+                                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="2*"/>
+                                <DataGridTextColumn Header="Estado/Rol" Binding="{Binding Status}" Width="*"/>
+                                <DataGridTextColumn Header="Imagen" Binding="{Binding Imagen}" Width="*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.5*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Nombre" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtEmpleadoNombre"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Apellido" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtEmpleadoApellido"/></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Email" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtEmpleadoEmail"/></StackPanel>
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.5*"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Contraseña" FontSize="11" Foreground="#6B6F6A"/><PasswordBox x:Name="TxtEmpleadoPass" Height="32" Padding="8,5" BorderBrush="#E2E0D8" BorderThickness="1"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Estado / Rol" FontSize="11" Foreground="#6B6F6A"/><ComboBox x:Name="CmbEmpleadoRol"><ComboBoxItem Content="Cajero" Tag="cajero"/><ComboBoxItem Content="Producción" Tag="produccion"/><ComboBoxItem Content="Repartidor" Tag="repartidor"/><ComboBoxItem Content="Administrador" Tag="administrador"/></ComboBox></StackPanel>
+                            <StackPanel Grid.Column="2"><TextBlock Text="Imagen (URL/ruta, opcional)" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtEmpleadoImagen"/></StackPanel>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                            <Button Content="Agregar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="AgregarEmpleado_Click"/>
+                            <Button Content="Modificar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="ModificarEmpleado_Click"/>
+                            <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" Click="EliminarEmpleado_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- PRODUCTOS -->
                 <Border x:Name="PanelProductos" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
-                    <StackPanel><TextBlock Text="Productos" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgProductos" Height="230"><DataGrid.Columns><DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/><DataGridTextColumn Header="Precio" Binding="{Binding Precio, StringFormat={}{0:C0}}" Width="*"/></DataGrid.Columns></DataGrid>
-                        <Grid Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                            <TextBox x:Name="TxtProductoNombre" Grid.Column="0" Margin="0,0,8,0"/><TextBox x:Name="TxtProductoPrecio" Grid.Column="1" Margin="0,0,8,0"/><Button Grid.Column="2" Content="Agregar producto" Style="{StaticResource PrimaryButton}" Click="AgregarProducto_Click"/></Grid>
-                        <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" HorizontalAlignment="Right" Margin="0,10,0,0" Click="EliminarProducto_Click"/>
+                    <StackPanel>
+                        <TextBlock Text="Productos" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                        <DataGrid x:Name="DgProductos" Height="220" SelectionChanged="DgProductos_SelectionChanged">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding IdProducto}" Width="45"/>
+                                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
+                                <DataGridTextColumn Header="Tipo" Binding="{Binding Tipo}" Width="*"/>
+                                <DataGridTextColumn Header="Precio" Binding="{Binding Precio, StringFormat={}{0:C0}}" Width="*"/>
+                                <DataGridTextColumn Header="Descripción" Binding="{Binding Descripcion}" Width="2*"/>
+                                <DataGridTextColumn Header="Stock" Binding="{Binding Stock}" Width="65"/>
+                                <DataGridTextColumn Header="Categoría" Binding="{Binding Categoria}" Width="*"/>
+                                <DataGridCheckBoxColumn Header="Activo" Binding="{Binding Activo}" Width="60"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Nombre" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoNombre"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Tipo" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoTipo"/></StackPanel>
+                            <StackPanel Grid.Column="2" Margin="0,0,8,0"><TextBlock Text="Precio" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoPrecio"/></StackPanel>
+                            <StackPanel Grid.Column="3"><TextBlock Text="Stock" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoStock"/></StackPanel>
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Margin="0,0,8,0"><TextBlock Text="Descripción" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoDescripcion"/></StackPanel>
+                            <StackPanel Grid.Column="1" Margin="0,0,8,0"><TextBlock Text="Categoría" FontSize="11" Foreground="#6B6F6A"/><TextBox x:Name="TxtProductoCategoria"/></StackPanel>
+                            <CheckBox x:Name="ChkProductoActivo" Grid.Column="2" Content="Activo" IsChecked="True" VerticalAlignment="Bottom" Margin="8,0,0,8"/>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                            <Button Content="Agregar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="AgregarProducto_Click"/>
+                            <Button Content="Modificar" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="ModificarProducto_Click"/>
+                            <Button Content="Eliminar seleccionado" Style="{StaticResource DangerButton}" Click="EliminarProducto_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
