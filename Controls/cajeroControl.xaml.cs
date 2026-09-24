@@ -99,7 +99,7 @@ namespace sistema_gestion_heladeria.Controls
 
                         int idVenta =
                             datos.GetProperty("id_venta").GetInt32();
-
+                        /*
                         Dispatcher.Invoke(() =>
                         {
                             MessageBox.Show(
@@ -109,6 +109,7 @@ namespace sistema_gestion_heladeria.Controls
                                 MessageBoxImage.Information
                             );
                         });
+                        */
                     }
                     catch (Exception ex)
                     {
