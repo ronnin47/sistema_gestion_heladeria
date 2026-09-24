@@ -42,7 +42,11 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <param name="socket"></param>
 
         public cajeroControl(SessionDataUser _user, SocketIOClient.SocketIO socket)
         {
