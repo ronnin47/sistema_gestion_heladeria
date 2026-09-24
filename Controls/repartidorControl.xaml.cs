@@ -15,14 +15,17 @@ using System.Windows.Shapes;
 
 namespace sistema_gestion_heladeria.Controls
 {
-    /// <summary>
-    /// Lógica de interacción para repartidorControl.xaml
-    /// </summary>
+    
     public partial class repartidorControl : UserControl
     {
         public repartidorControl()
         {
             InitializeComponent();
         }
+
+        // renderizar peididos activos
+
+
+
     }
 }

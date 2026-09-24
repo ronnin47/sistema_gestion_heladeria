@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using sistema_gestion_heladeria.Models;
 using System.Windows;
+using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Services
 {
@@ -12,11 +13,8 @@ namespace sistema_gestion_heladeria.Services
     {
         private readonly HttpClient client = new HttpClient();
 
-        private readonly string apiUrl = "http://localhost:3000";
+        private readonly string apiUrl = ApiConfig.ApiUrl;
 
-
-
-    
 
         public async Task<SessionDataUser> Login(string email, string pass)
         {
