@@ -52,7 +52,7 @@ namespace sistema_gestion_heladeria.Controls
         {
             usuario = _user;
 
-          MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
+         // MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
 
             InitializeComponent();
 
