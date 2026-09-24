@@ -118,17 +118,37 @@ namespace sistema_gestion_heladeria.Controls
                     }
                 }
             );
+
+            // Escucha cuando producción cambia el estado
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        pedidosActivos =
+                            await pedidosService.ObtenerPedidosActivos();
+
+                        await CargarPedidosCompletadosHoy();
+
+                        RenderizarPedidosActivos();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado: " + ex.Message
+                    );
+                }
+            });
         }
 
 
-        private async Task CargarPedidosCompletadosHoy()
-        {
-            List<PedidoActivoDTO> pedidosCompletadosHoy =
-                await pedidosService.ObtenerPedidosCompletadosHoy();
 
-            txtCompletadosHoy.Text =
-                pedidosCompletadosHoy.Count.ToString();
-        }
+
+
+
+
         private void RenderizarPedidosActivos()
         {
             panelPedidosActivos.Children.Clear();
@@ -363,6 +383,15 @@ namespace sistema_gestion_heladeria.Controls
 
                 panelPedidosActivos.Children.Add(tarjeta);
             }
+        }
+
+        private async Task CargarPedidosCompletadosHoy()
+        {
+            List<PedidoActivoDTO> pedidosCompletadosHoy =
+                await pedidosService.ObtenerPedidosCompletadosHoy();
+
+            txtCompletadosHoy.Text =
+                pedidosCompletadosHoy.Count.ToString();
         }
         private async Task ConsumirTodosProductos()
         {

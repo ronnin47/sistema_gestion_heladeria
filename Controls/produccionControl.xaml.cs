@@ -13,12 +13,65 @@ namespace sistema_gestion_heladeria.Controls
     {
         SessionDataUser usuario;
 
-        public produccionControl(SessionDataUser _user)
+        private SocketIOClient.SocketIO socket;
+
+
+        public produccionControl(SessionDataUser _user, SocketIOClient.SocketIO socket)
         {
             usuario = _user;
             InitializeComponent();
+
+
+            this.socket = socket;
+
+            EscucharPedidos();
+
+
             Loaded += produccionControl_Loaded;
         }
+
+
+
+
+
+
+        private void EscucharPedidos()
+        {
+            socket.On("pedido_creado", async response =>
+            {
+                try
+                {
+                    var datos =
+                        response.GetValue<System.Text.Json.JsonElement>();
+
+                    int idVenta =
+                        datos.GetProperty("id_venta").GetInt32();
+                    /*
+                    Dispatcher.Invoke(() =>
+                    {
+                        MessageBox.Show(
+                            "Se creó un nuevo pedido.\n\nID venta: " + idVenta,
+                            "Pedido creado",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information
+                        );
+                    });
+                    */
+                    // Actualizar los pedidos en el hilo de WPF
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await CargarPedidos();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error pedido_creado: " + ex.Message
+                    );
+                }
+            });
+        }
+
 
         private async void produccionControl_Loaded(object sender, RoutedEventArgs e)
         {
