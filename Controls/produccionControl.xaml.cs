@@ -70,6 +70,24 @@ namespace sistema_gestion_heladeria.Controls
                     );
                 }
             });
+
+
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await CargarPedidos();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado: " + ex.Message
+                    );
+                }
+            });
         }
 
 
