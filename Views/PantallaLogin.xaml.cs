@@ -32,7 +32,7 @@ namespace sistema_gestion_heladeria.Views
 
             SessionDataUser usuario = await loginService.Login(email, contrasena);
 
-           // MessageBox.Show($"ID de usuario: {usuario.IdUsuario}");
+          //MessageBox.Show($"ID de usuario: {usuario.IdUsuario}");
 
             //persistencia en memoria local
             if (usuario != null)

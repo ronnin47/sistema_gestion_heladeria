@@ -65,7 +65,6 @@ namespace sistema_gestion_heladeria.Services
 
 
 
-
         public async Task<List<PedidoActivoDTO>> ObtenerPedidosActivos()
         {
             try
@@ -202,8 +201,6 @@ namespace sistema_gestion_heladeria.Services
                 return false;
             }
         }
-
-
 
 
         public async Task<List<PedidoActivoDTO>> ObtenerPedidosCompletadosHoy()

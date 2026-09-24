@@ -37,23 +37,29 @@ namespace sistema_gestion_heladeria.Controls
         private List<PedidoActivoDTO> pedidosActivos = new List<PedidoActivoDTO>();
 
 
+        private SocketIOClient.SocketIO socket;
 
 
 
 
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="_user"></param>
+        /// <param name="socket"></param>
 
-
-
-        public cajeroControl(SessionDataUser _user)
+        public cajeroControl(SessionDataUser _user, SocketIOClient.SocketIO socket)
         {
             usuario = _user;
 
-           // MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
+         // MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
 
             InitializeComponent();
 
 
-         
+            this.socket = socket;
+
+            EscucharPedidos();
 
             Loaded += cajeroControl_Loaded;
         }
@@ -80,15 +86,70 @@ namespace sistema_gestion_heladeria.Controls
         }
 
 
-
-        private async Task CargarPedidosCompletadosHoy()
+        private void EscucharPedidos()
         {
-            List<PedidoActivoDTO> pedidosCompletadosHoy =
-                await pedidosService.ObtenerPedidosCompletadosHoy();
+            socket.On(
+                "pedido_creado",
+                response =>
+                {
+                    try
+                    {
+                        var datos =
+                            response.GetValue<System.Text.Json.JsonElement>();
 
-            txtCompletadosHoy.Text =
-                pedidosCompletadosHoy.Count.ToString();
+                        int idVenta =
+                            datos.GetProperty("id_venta").GetInt32();
+                        /*
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(
+                                "Se creó un nuevo pedido.\n\nID venta: " + idVenta,
+                                "Pedido creado",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information
+                            );
+                        });
+                        */
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "Error pedido_creado: " + ex.Message
+                        );
+                    }
+                }
+            );
+
+            // Escucha cuando producción cambia el estado
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        pedidosActivos =
+                            await pedidosService.ObtenerPedidosActivos();
+
+                        await CargarPedidosCompletadosHoy();
+
+                        RenderizarPedidosActivos();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado: " + ex.Message
+                    );
+                }
+            });
         }
+
+
+
+
+
+
+
         private void RenderizarPedidosActivos()
         {
             panelPedidosActivos.Children.Clear();
@@ -323,6 +384,15 @@ namespace sistema_gestion_heladeria.Controls
 
                 panelPedidosActivos.Children.Add(tarjeta);
             }
+        }
+
+        private async Task CargarPedidosCompletadosHoy()
+        {
+            List<PedidoActivoDTO> pedidosCompletadosHoy =
+                await pedidosService.ObtenerPedidosCompletadosHoy();
+
+            txtCompletadosHoy.Text =
+                pedidosCompletadosHoy.Count.ToString();
         }
         private async Task ConsumirTodosProductos()
         {
@@ -942,7 +1012,7 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-
+        //************************ACA**********************
         private async void CobrarYEnviar_Click(
     object sender,
     RoutedEventArgs e)
@@ -959,8 +1029,7 @@ namespace sistema_gestion_heladeria.Controls
 
            
 
-            bool guardado =
-                await pedidosService.InsertarPedido(pedido);
+            bool guardado = await pedidosService.InsertarPedido(pedido);
 
             if (!guardado)
             {
@@ -969,7 +1038,7 @@ namespace sistema_gestion_heladeria.Controls
 
                 return;
             }
-
+            // PERO SI SALIO BIEN EMIT
 
 
             // RECARGAR PEDIDOS ACTIVOS
