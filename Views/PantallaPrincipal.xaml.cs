@@ -14,6 +14,8 @@ using System.Windows.Shapes;
 using sistema_gestion_heladeria.Models;
 using sistema_gestion_heladeria.Controls;
 using sistema_gestion_heladeria.Services;
+using SocketIOClient;
+using sistema_gestion_heladeria.Config;
 
 
 namespace sistema_gestion_heladeria.Views
@@ -23,6 +25,7 @@ namespace sistema_gestion_heladeria.Views
     {
 
         private SessionDataUser usuario;
+        private SocketIOClient.SocketIO socket;
 
 
         public PantallaPrincipal(SessionDataUser _user)
@@ -36,17 +39,62 @@ namespace sistema_gestion_heladeria.Views
         }
 
 
-        private void Window_Loaded (object sender, RoutedEventArgs e)
+        private async void Window_Loaded (object sender, RoutedEventArgs e)
         {
             CargarDatosUsuario();
 
            
             //Segun el rol del usuario que userControl le renderiza
+           
+            await ConectarSocket();
+
             CargarPanelSegunEstado();
-        
+
         }
 
-       
+
+
+
+        //*********SOCKET IO*****************
+        private async Task ConectarSocket()
+        {
+            try
+            {
+                socket = new SocketIOClient.SocketIO( new Uri( ApiConfig.SocketUrl ));
+
+                socket.OnConnected +=
+                    (s, args) =>
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "CONECTADO AL SOCKET.IO"
+                        );
+                    };
+
+                socket.OnError +=
+                    (send, en) =>
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "ERROR SOCKET: " + en
+                        );
+                    };
+
+                await socket.ConnectAsync();
+
+                System.Diagnostics.Debug.WriteLine(
+                    "CONNECTASYNC EJECUTADO"
+                );
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "CONNECT ERROR: " +
+                    ex.Message
+                );
+            }
+        }
+
+
+
 
 
         private void CargarPanelSegunEstado()
@@ -56,7 +104,7 @@ namespace sistema_gestion_heladeria.Views
                 // Acá van los 4 casos
 
                 case "cajero":
-                    PanelContenido.Content = new cajeroControl(usuario);
+                    PanelContenido.Content = new cajeroControl(usuario, socket);
                     break;
 
                 case "produccion":
