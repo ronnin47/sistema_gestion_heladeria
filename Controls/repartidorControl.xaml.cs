@@ -11,6 +11,13 @@ namespace sistema_gestion_heladeria.Controls
 {
     public partial class repartidorControl : UserControl
     {
+
+
+        SessionDataUser usuario;
+
+        private SocketIOClient.SocketIO socket;
+
+
         private PedidosService pedidosService = new PedidosService();
 
         private List<PedidoActivoDTO> pedidosActivos =
@@ -20,9 +27,13 @@ namespace sistema_gestion_heladeria.Controls
         private List<PedidoActivoDTO> pedidosEntregados =
             new List<PedidoActivoDTO>();
 
-        public repartidorControl()
+        public repartidorControl(SessionDataUser _user, SocketIOClient.SocketIO _socket)
         {
             InitializeComponent();
+
+            usuario = _user;
+
+            this.socket = _socket;
 
             Loaded += RepartidorControl_Loaded;
         }
@@ -31,6 +42,7 @@ namespace sistema_gestion_heladeria.Controls
             object sender,
             RoutedEventArgs e)
         {
+            EscucharPedidos();
             await CargarPedidos();
         }
 
@@ -46,6 +58,66 @@ namespace sistema_gestion_heladeria.Controls
             RenderizarPedidos();
         }
 
+
+
+
+
+
+        // SOCKET
+        private void EscucharPedidos()
+        {
+            socket.On(
+                "pedido_creado",
+                response =>
+                {
+                    try
+                    {
+                        var datos =
+                            response.GetValue<System.Text.Json.JsonElement>();
+
+                        int idVenta =
+                            datos.GetProperty("id_venta").GetInt32();
+                        /*
+                        Dispatcher.Invoke(() =>
+                        {
+                            MessageBox.Show(
+                                "Se creó un nuevo pedido.\n\nID venta: " + idVenta,
+                                "Pedido creado",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Information
+                            );
+                        });
+                        */
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            "Error pedido_creado: " + ex.Message
+                        );
+                    }
+                }
+            );
+
+            // Escucha cuando producción cambia el estado
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                   
+
+                        await CargarPedidos();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado: " + ex.Message
+                    );
+                }
+            });
+        }
         // =========================================================
         // MOSTRAR PEDIDOS
         // =========================================================
