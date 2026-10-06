@@ -109,15 +109,14 @@ namespace sistema_gestion_heladeria.Services
 
 
         //DEV-BRIAN
-        public async Task<List<PedidoProduccionDTO>> ObtenerPedidosProduccion()
+        public async Task<List<PedidoProduccionDTO>> ObtenerPedidosProduccion(int idUsuario)
         {
             try
             {
                 using (HttpClient client = new HttpClient())
                 {
                     HttpResponseMessage respuesta =
-                        await client.GetAsync(
-                            ApiConfig.ApiUrl + "/pedidos/produccion");
+                        await client.GetAsync($"{ApiConfig.ApiUrl}/pedidos/produccion/{idUsuario}");
 
                     if (respuesta.IsSuccessStatusCode)
                     {
