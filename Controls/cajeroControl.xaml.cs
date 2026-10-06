@@ -400,7 +400,7 @@ namespace sistema_gestion_heladeria.Controls
                 new ProductosService();
 
             productosDisponibles =
-                await productosService.ConsumirTodosProductos();
+                await productosService.ConsumirTodosProductos(usuario.IdUsuario);
 
             if (productosDisponibles == null ||
                 productosDisponibles.Count == 0)
@@ -411,6 +411,9 @@ namespace sistema_gestion_heladeria.Controls
 
             RenderizarProductos();
         }
+
+
+
         private void RenderizarProductos()
         {
             panelProductos.Children.Clear();

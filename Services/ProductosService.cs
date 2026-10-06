@@ -14,12 +14,12 @@ namespace sistema_gestion_heladeria.Services
     {
     
 
-        public async Task<List<Producto>> ConsumirTodosProductos()
+        public async Task<List<Producto>> ConsumirTodosProductos(int idUsuario)
         {
             try
             {
                 HttpResponseMessage response = await ApiConfig.Client.GetAsync(
-                    $"{ApiConfig.ApiUrl}/productos"
+                    $"{ApiConfig.ApiUrl}/productos/{idUsuario}"
                 );
 
                 if (!response.IsSuccessStatusCode)
