@@ -6,16 +6,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using sistema_gestion_heladeria.Services;
+using sistema_gestion_heladeria.Models;
 
 namespace sistema_gestion_heladeria.Controls
 {
     public partial class administradorControl : UserControl
     {
         private readonly AdministradorService servicio = new AdministradorService();
-        private readonly ObservableCollection<ClienteAdmin> clientes = new ObservableCollection<ClienteAdmin>();
-        private readonly ObservableCollection<ProveedorAdmin> proveedores = new ObservableCollection<ProveedorAdmin>();
-        private readonly ObservableCollection<UsuarioAdmin> empleados = new ObservableCollection<UsuarioAdmin>();
-        private readonly ObservableCollection<ProductoAdmin> productos = new ObservableCollection<ProductoAdmin>();
+        private readonly ObservableCollection<ClienteAdminDTO> clientes = new ObservableCollection<ClienteAdminDTO>();
+        private readonly ObservableCollection<ProveedorAdminDTO> proveedores = new ObservableCollection<ProveedorAdminDTO>();
+        private readonly ObservableCollection<UsuarioAdminDTO> empleados = new ObservableCollection<UsuarioAdminDTO>();
+        private readonly ObservableCollection<ProductoAdminDTO> productos = new ObservableCollection<ProductoAdminDTO>();
 
         public administradorControl()
         {
@@ -58,7 +59,7 @@ namespace sistema_gestion_heladeria.Controls
             foreach (var item in datos) destino.Add(item);
         }
 
-        private void CargarResumen(ResumenAdmin r)
+        private void CargarResumen(ResumenAdminDTO r)
         {
             if (r == null) return;
             TxtPedidosHoy.Text = r.PedidosHoy.ToString();
@@ -107,7 +108,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private void DgClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var c = DgClientes.SelectedItem as ClienteAdmin;
+            var c = DgClientes.SelectedItem as ClienteAdminDTO;
             if (c == null) return;
             TxtClienteNombre.Text = c.Nombre;
             TxtClienteTelefono.Text = c.Telefono;
@@ -116,7 +117,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void ModificarCliente_Click(object sender, RoutedEventArgs e)
         {
-            var c = DgClientes.SelectedItem as ClienteAdmin;
+            var c = DgClientes.SelectedItem as ClienteAdminDTO;
             if (c == null) { MessageBox.Show("Seleccioná una venta/cliente."); return; }
             if (string.IsNullOrWhiteSpace(TxtClienteNombre.Text)) { MessageBox.Show("El nombre es obligatorio."); return; }
             c.Nombre = TxtClienteNombre.Text.Trim(); c.Telefono = TxtClienteTelefono.Text.Trim(); c.Direccion = TxtClienteDireccion.Text.Trim();
@@ -125,15 +126,15 @@ namespace sistema_gestion_heladeria.Controls
 
         private void DgProveedores_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var p = DgProveedores.SelectedItem as ProveedorAdmin;
+            var p = DgProveedores.SelectedItem as ProveedorAdminDTO;
             if (p == null) return;
             TxtProveedorNombre.Text = p.Nombre; TxtProveedorTelefono.Text = p.Telefono; TxtProveedorDireccion.Text = p.Direccion;
         }
 
-        private ProveedorAdmin LeerProveedor()
+        private ProveedorAdminDTO LeerProveedor()
         {
             if (string.IsNullOrWhiteSpace(TxtProveedorNombre.Text)) throw new Exception("El nombre del proveedor es obligatorio.");
-            return new ProveedorAdmin { Nombre = TxtProveedorNombre.Text.Trim(), Telefono = TxtProveedorTelefono.Text.Trim(), Direccion = TxtProveedorDireccion.Text.Trim() };
+            return new ProveedorAdminDTO { Nombre = TxtProveedorNombre.Text.Trim(), Telefono = TxtProveedorTelefono.Text.Trim(), Direccion = TxtProveedorDireccion.Text.Trim() };
         }
 
         private async void AgregarProveedor_Click(object sender, RoutedEventArgs e)
@@ -144,7 +145,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void ModificarProveedor_Click(object sender, RoutedEventArgs e)
         {
-            var seleccionado = DgProveedores.SelectedItem as ProveedorAdmin;
+            var seleccionado = DgProveedores.SelectedItem as ProveedorAdminDTO;
             if (seleccionado == null) { MessageBox.Show("Seleccioná un proveedor."); return; }
             try { var p = LeerProveedor(); p.IdProveedor = seleccionado.IdProveedor; await Ejecutar(async () => { await servicio.ModificarProveedor(p); Reemplazar(proveedores, await servicio.ObtenerProveedores()); LimpiarProveedor(); }, "Proveedor modificado."); }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
@@ -152,7 +153,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void EliminarProveedor_Click(object sender, RoutedEventArgs e)
         {
-            var p = DgProveedores.SelectedItem as ProveedorAdmin;
+            var p = DgProveedores.SelectedItem as ProveedorAdminDTO;
             if (p == null) { MessageBox.Show("Seleccioná un proveedor."); return; }
             if (!Confirmar("¿Eliminar el proveedor seleccionado?")) return;
             await Ejecutar(async () => { await servicio.EliminarProveedor(p.IdProveedor); Reemplazar(proveedores, await servicio.ObtenerProveedores()); LimpiarProveedor(); }, "Proveedor eliminado.");
@@ -162,20 +163,20 @@ namespace sistema_gestion_heladeria.Controls
 
         private void DgEmpleados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var u = DgEmpleados.SelectedItem as UsuarioAdmin;
+            var u = DgEmpleados.SelectedItem as UsuarioAdminDTO;
             if (u == null) return;
             TxtEmpleadoNombre.Text = u.Nombre; TxtEmpleadoApellido.Text = u.Apellido; TxtEmpleadoEmail.Text = u.Email; TxtEmpleadoPass.Password = u.Pass ?? ""; TxtEmpleadoImagen.Text = u.Imagen;
             foreach (ComboBoxItem item in CmbEmpleadoRol.Items)
                 if (string.Equals(item.Tag as string, u.Status, StringComparison.OrdinalIgnoreCase)) { CmbEmpleadoRol.SelectedItem = item; break; }
         }
 
-        private UsuarioAdmin LeerUsuario()
+        private UsuarioAdminDTO LeerUsuario()
         {
             var rol = CmbEmpleadoRol.SelectedItem as ComboBoxItem;
             var status = rol == null ? null : rol.Tag as string;
             if (string.IsNullOrWhiteSpace(TxtEmpleadoNombre.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoApellido.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoEmail.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoPass.Password) || string.IsNullOrWhiteSpace(status))
                 throw new Exception("Nombre, apellido, email, contraseña y estado/rol son obligatorios.");
-            return new UsuarioAdmin { Nombre = TxtEmpleadoNombre.Text.Trim(), Apellido = TxtEmpleadoApellido.Text.Trim(), Email = TxtEmpleadoEmail.Text.Trim(), Pass = TxtEmpleadoPass.Password, Status = status, Imagen = TxtEmpleadoImagen.Text.Trim() };
+            return new UsuarioAdminDTO { Nombre = TxtEmpleadoNombre.Text.Trim(), Apellido = TxtEmpleadoApellido.Text.Trim(), Email = TxtEmpleadoEmail.Text.Trim(), Pass = TxtEmpleadoPass.Password, Status = status, Imagen = TxtEmpleadoImagen.Text.Trim() };
         }
 
         private async void AgregarEmpleado_Click(object sender, RoutedEventArgs e)
@@ -186,7 +187,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void ModificarEmpleado_Click(object sender, RoutedEventArgs e)
         {
-            var seleccionado = DgEmpleados.SelectedItem as UsuarioAdmin;
+            var seleccionado = DgEmpleados.SelectedItem as UsuarioAdminDTO;
             if (seleccionado == null) { MessageBox.Show("Seleccioná un usuario."); return; }
             try { var u = LeerUsuario(); u.Id = seleccionado.Id; await Ejecutar(async () => { await servicio.ModificarUsuario(u); Reemplazar(empleados, await servicio.ObtenerUsuarios()); LimpiarEmpleado(); }, "Usuario modificado."); }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
@@ -194,7 +195,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void EliminarEmpleado_Click(object sender, RoutedEventArgs e)
         {
-            var u = DgEmpleados.SelectedItem as UsuarioAdmin;
+            var u = DgEmpleados.SelectedItem as UsuarioAdminDTO;
             if (u == null) { MessageBox.Show("Seleccioná un usuario."); return; }
             if (!Confirmar("¿Eliminar el usuario seleccionado?")) return;
             await Ejecutar(async () => { await servicio.EliminarUsuario(u.Id); Reemplazar(empleados, await servicio.ObtenerUsuarios()); LimpiarEmpleado(); }, "Usuario eliminado.");
@@ -204,17 +205,17 @@ namespace sistema_gestion_heladeria.Controls
 
         private void DgProductos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var p = DgProductos.SelectedItem as ProductoAdmin;
+            var p = DgProductos.SelectedItem as ProductoAdminDTO;
             if (p == null) return;
             TxtProductoNombre.Text = p.Nombre; TxtProductoTipo.Text = p.Tipo; TxtProductoPrecio.Text = p.Precio.ToString(CultureInfo.CurrentCulture); TxtProductoDescripcion.Text = p.Descripcion; TxtProductoStock.Text = p.Stock.ToString(); TxtProductoCategoria.Text = p.Categoria; ChkProductoActivo.IsChecked = p.Activo;
         }
 
-        private ProductoAdmin LeerProducto()
+        private ProductoAdminDTO LeerProducto()
         {
             decimal precio; int stock;
             if (string.IsNullOrWhiteSpace(TxtProductoNombre.Text) || !decimal.TryParse(TxtProductoPrecio.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out precio) || !int.TryParse(TxtProductoStock.Text, out stock))
                 throw new Exception("Completá nombre, precio y stock con valores válidos.");
-            return new ProductoAdmin { Nombre = TxtProductoNombre.Text.Trim(), Tipo = TxtProductoTipo.Text.Trim(), Precio = precio, Descripcion = TxtProductoDescripcion.Text.Trim(), Stock = stock, Categoria = TxtProductoCategoria.Text.Trim(), Activo = ChkProductoActivo.IsChecked == true };
+            return new ProductoAdminDTO { Nombre = TxtProductoNombre.Text.Trim(), Tipo = TxtProductoTipo.Text.Trim(), Precio = precio, Descripcion = TxtProductoDescripcion.Text.Trim(), Stock = stock, Categoria = TxtProductoCategoria.Text.Trim(), Activo = ChkProductoActivo.IsChecked == true };
         }
 
         private async void AgregarProducto_Click(object sender, RoutedEventArgs e)
@@ -225,7 +226,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void ModificarProducto_Click(object sender, RoutedEventArgs e)
         {
-            var seleccionado = DgProductos.SelectedItem as ProductoAdmin;
+            var seleccionado = DgProductos.SelectedItem as ProductoAdminDTO;
             if (seleccionado == null) { MessageBox.Show("Seleccioná un producto."); return; }
             try { var p = LeerProducto(); p.IdProducto = seleccionado.IdProducto; await Ejecutar(async () => { await servicio.ModificarProducto(p); Reemplazar(productos, await servicio.ObtenerProductos()); LimpiarProducto(); }, "Producto modificado."); }
             catch (Exception ex) { MessageBox.Show(ex.Message); }
@@ -233,7 +234,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private async void EliminarProducto_Click(object sender, RoutedEventArgs e)
         {
-            var p = DgProductos.SelectedItem as ProductoAdmin;
+            var p = DgProductos.SelectedItem as ProductoAdminDTO;
             if (p == null) { MessageBox.Show("Seleccioná un producto."); return; }
             if (!Confirmar("¿Eliminar el producto seleccionado?")) return;
             await Ejecutar(async () => { await servicio.EliminarProducto(p.IdProducto); Reemplazar(productos, await servicio.ObtenerProductos()); LimpiarProducto(); }, "Producto eliminado.");
