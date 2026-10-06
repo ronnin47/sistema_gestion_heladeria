@@ -89,7 +89,7 @@ namespace sistema_gestion_heladeria.Controls
                 }
             });
         }
-
+        //asdasdas
 
         private async void produccionControl_Loaded(object sender, RoutedEventArgs e)
         {
@@ -104,7 +104,7 @@ namespace sistema_gestion_heladeria.Controls
                 //y luego abajo de eso crea una lista de pedidoProduccionDTO llamada pedidos para traer toda la informacion de pedidos usando uno de los
                 //metodos que trajo el pedidosService
                 PedidosService servicio = new PedidosService();
-                List<PedidoProduccionDTO> pedidos = await servicio.ObtenerPedidosProduccion();
+                List<PedidoProduccionDTO> pedidos = await servicio.ObtenerPedidosProduccion(usuario.IdUsuario);
 
 
 
@@ -134,7 +134,7 @@ namespace sistema_gestion_heladeria.Controls
                 
 
 
-                //probando solucion
+                //probando
 
                 // 3. Asignar los orígenes de datos
                 icPendientes.ItemsSource = pendientes;

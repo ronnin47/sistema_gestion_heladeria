@@ -111,7 +111,7 @@ namespace sistema_gestion_heladeria.Views
                     PanelContenido.Content = new produccionControl(usuario, socket);
                     break;
                 case "repartidor":
-                    PanelContenido.Content = new repartidorControl();
+                    PanelContenido.Content = new repartidorControl(usuario, socket);
                     break;
 
                 case "administrador":
