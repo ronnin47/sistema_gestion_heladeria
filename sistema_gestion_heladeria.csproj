@@ -185,14 +185,19 @@
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Cliente.cs" />
+    <Compile Include="Models\ClienteAdminDTO.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\PedidoProduccionDTO.cs" />
     <Compile Include="Models\Producto.cs" />
+    <Compile Include="Models\ProductoAdminDTO.cs" />
     <Compile Include="Models\ProductoPedidoDTO.cs" />
+    <Compile Include="Models\ProveedorAdminDTO.cs" />
+    <Compile Include="Models\ResumenAdminDTO.cs" />
     <Compile Include="Models\SaborPedidoDTO.cs" />
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
+    <Compile Include="Models\UsuarioAdminDTO.cs" />
     <Compile Include="Services\AdministradorService.cs" />
     <Compile Include="Services\LoginService.cs" />
     <Compile Include="Services\PedidosService.cs" />
