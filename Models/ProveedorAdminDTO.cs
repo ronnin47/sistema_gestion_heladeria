@@ -9,6 +9,7 @@ using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO utilizado por Administrador para transferir los datos de proveedores entre el frontend y la API.
     public class ProveedorAdminDTO
     {
         [JsonProperty("id_proveedor")] public int IdProveedor { get; set; }

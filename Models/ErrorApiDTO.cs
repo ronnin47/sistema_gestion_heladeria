@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO interno utilizado por AdministradorService para leer el mensaje de error devuelto por la API.
     internal class ErrorApiDTO
     {
         [JsonProperty("error")]

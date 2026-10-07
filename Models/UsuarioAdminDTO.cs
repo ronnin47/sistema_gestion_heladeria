@@ -8,6 +8,7 @@ using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO utilizado por Administrador para gestionar los usuarios/empleados del sistema.
     public class UsuarioAdminDTO
     {
         [JsonProperty("id")] public int Id { get; set; }

@@ -9,8 +9,11 @@ using sistema_gestion_heladeria.Models;
 
 namespace sistema_gestion_heladeria.Services
 {
+    // Centraliza toda la comunicación HTTP del módulo Administrador con la API.
+    // El UserControl no conoce las peticiones HTTP: solicita operaciones a este Service.
     public class AdministradorService
     {
+        // Método genérico para las consultas GET. Valida la respuesta y convierte el JSON al DTO solicitado.
         private async Task<T> GetAsync<T>(string ruta)
         {
             var response = await ApiConfig.Client.GetAsync($"{ApiConfig.ApiUrl}{ruta}");
@@ -18,6 +21,7 @@ namespace sistema_gestion_heladeria.Services
             return JsonConvert.DeserializeObject<T>(await response.Content.ReadAsStringAsync());
         }
 
+        // Método reutilizable para POST, PUT y DELETE. Serializa los datos a JSON cuando corresponde.
         private async Task<T> EnviarAsync<T>(HttpMethod metodo, string ruta, object datos)
         {
             var request = new HttpRequestMessage(metodo, $"{ApiConfig.ApiUrl}{ruta}");
@@ -30,6 +34,7 @@ namespace sistema_gestion_heladeria.Services
             return string.IsNullOrWhiteSpace(contenido) ? default(T) : JsonConvert.DeserializeObject<T>(contenido);
         }
 
+        // Unifica el manejo de errores HTTP y recupera el mensaje enviado por la API mediante ErrorApiDTO.
         private async Task ValidarRespuesta(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode) return;
@@ -45,6 +50,8 @@ namespace sistema_gestion_heladeria.Services
             }
         }
 
+        // Endpoints utilizados por las distintas secciones de Administrador.
+        // Cada método devuelve/recibe DTOs y mantiene las rutas de la API fuera del UserControl.
         public Task<ResumenAdminDTO> ObtenerResumen() => GetAsync<ResumenAdminDTO>("/admin/resumen");
         public Task<List<ClienteAdminDTO>> ObtenerClientes() => GetAsync<List<ClienteAdminDTO>>("/admin/clientes");
         public Task<object> ModificarCliente(ClienteAdminDTO c) => EnviarAsync<object>(HttpMethod.Put, $"/admin/clientes/{c.IdVenta}", c);
