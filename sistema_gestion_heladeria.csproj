@@ -186,6 +186,7 @@
     </Compile>
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="Models\ClienteAdminDTO.cs" />
+    <Compile Include="Models\ErrorApiDTO.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\PedidoProduccionDTO.cs" />

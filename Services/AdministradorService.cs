@@ -36,7 +36,7 @@ namespace sistema_gestion_heladeria.Services
             string contenido = await response.Content.ReadAsStringAsync();
             try
             {
-                var error = JsonConvert.DeserializeObject<ErrorApi>(contenido);
+                var error = JsonConvert.DeserializeObject<ErrorApiDTO>(contenido);
                 throw new Exception(error != null && !string.IsNullOrWhiteSpace(error.Error) ? error.Error : "Error al comunicarse con la API");
             }
             catch (JsonException)
@@ -64,16 +64,4 @@ namespace sistema_gestion_heladeria.Services
         public Task<ProductoAdminDTO> ModificarProducto(ProductoAdminDTO p) => EnviarAsync<ProductoAdminDTO>(HttpMethod.Put, $"/admin/productos/{p.IdProducto}", p);
         public Task<object> EliminarProducto(int id) => EnviarAsync<object>(HttpMethod.Delete, $"/admin/productos/{id}", null);
     }
-
-  
-
-    
-
-
-
-   
-
-   
-
-    internal class ErrorApi { [JsonProperty("error")] public string Error { get; set; } }
 }

@@ -17,10 +17,13 @@ namespace sistema_gestion_heladeria.Controls
         private readonly ObservableCollection<ProveedorAdminDTO> proveedores = new ObservableCollection<ProveedorAdminDTO>();
         private readonly ObservableCollection<UsuarioAdminDTO> empleados = new ObservableCollection<UsuarioAdminDTO>();
         private readonly ObservableCollection<ProductoAdminDTO> productos = new ObservableCollection<ProductoAdminDTO>();
+        private SocketIOClient.SocketIO socket;
 
-        public administradorControl()
+        public administradorControl(SocketIOClient.SocketIO _socket)
         {
             InitializeComponent();
+            this.socket = _socket;
+            ConfigurarSocket();
             DgClientes.ItemsSource = clientes;
             DgProveedores.ItemsSource = proveedores;
             DgEmpleados.ItemsSource = empleados;
@@ -28,6 +31,46 @@ namespace sistema_gestion_heladeria.Controls
             CmbEmpleadoRol.SelectedIndex = 0;
             MostrarPanel("resumen");
             Loaded += AdministradorControl_Loaded;
+        }
+
+        private void ConfigurarSocket()
+        {
+            if (socket == null)
+                return;
+
+            socket.On("pedido_creado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error pedido_creado en administrador: " + ex.Message
+                    );
+                }
+            });
+
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado en administrador: " + ex.Message
+                    );
+                }
+            });
         }
 
         private async void AdministradorControl_Loaded(object sender, RoutedEventArgs e)
@@ -49,6 +92,21 @@ namespace sistema_gestion_heladeria.Controls
             catch (Exception ex)
             {
                 MessageBox.Show("No se pudieron cargar los datos de administración.\n" + ex.Message, "Administrador", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async System.Threading.Tasks.Task RecargarResumen()
+        {
+            try
+            {
+                var resumen = await servicio.ObtenerResumen();
+                CargarResumen(resumen);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "Error al actualizar el resumen de administrador: " + ex.Message
+                );
             }
         }
 
