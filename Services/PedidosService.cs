@@ -16,6 +16,31 @@ namespace sistema_gestion_heladeria.Services
 
         public async Task<bool> InsertarPedido(PedidoCaja pedido)
         {
+
+
+            // MOSTRAR PEDIDO Y SABORES ANTES DEL TRY
+            string mensaje = "PEDIDO A ENVIAR\n\n";
+
+            foreach (ProductoPedido producto in pedido.productos)
+            {
+                mensaje += "Producto ID: " + producto.id_producto + "\n";
+                mensaje += "Cantidad: " + producto.cantidad + "\n";
+                mensaje += "Sabores: ";
+
+                if (producto.sabores != null && producto.sabores.Count > 0)
+                {
+                    mensaje += string.Join(", ", producto.sabores);
+                }
+                else
+                {
+                    mensaje += "Sin sabores";
+                }
+
+                mensaje += "\n----------------------\n";
+            }
+
+            MessageBox.Show(mensaje, "Ver sabores del pedido");
+
             try
             {
 
@@ -67,6 +92,7 @@ namespace sistema_gestion_heladeria.Services
 
         public async Task<List<PedidoActivoDTO>> ObtenerPedidosActivos()
         {
+
             try
             {
                 using (HttpClient client = new HttpClient())

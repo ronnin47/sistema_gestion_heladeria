@@ -192,7 +192,8 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-        private void RenderizarPedidosActivos()
+
+private void RenderizarPedidosActivos()
         {
             panelPedidosActivos.Children.Clear();
 
@@ -296,6 +297,76 @@ namespace sistema_gestion_heladeria.Controls
                 informacion.Children.Add(pago);
 
                 contenido.Children.Add(informacion);
+
+
+                // PRODUCTOS Y SABORES DEL PEDIDO
+                if (pedido.productos != null &&
+                    pedido.productos.Count > 0)
+                {
+                    StackPanel panelProductosPedido = new StackPanel
+                    {
+                        Margin = new Thickness(0, 6, 0, 2)
+                    };
+
+                    foreach (ProductoPedidoDTO producto in pedido.productos)
+                    {
+                        StackPanel filaProducto = new StackPanel
+                        {
+                            Margin = new Thickness(0, 2, 0, 4)
+                        };
+
+                        // NOMBRE Y CANTIDAD DEL PRODUCTO
+                        TextBlock nombreProducto = new TextBlock
+                        {
+                            Text = (producto.producto_nombre ?? "Producto")
+                                   + " x" + producto.cantidad,
+                            FontSize = 11,
+                            FontWeight = FontWeights.SemiBold,
+                            Foreground = new SolidColorBrush(
+                                Color.FromRgb(55, 60, 65)),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+
+                        filaProducto.Children.Add(nombreProducto);
+
+
+                        // SABORES DEL PRODUCTO
+                        if (producto.sabores != null &&
+                            producto.sabores.Count > 0)
+                        {
+                            List<string> nombresSabores = new List<string>();
+
+                            foreach (SaborPedidoDTO sabor in producto.sabores)
+                            {
+                                if (sabor != null &&
+                                    !string.IsNullOrWhiteSpace(sabor.nombre))
+                                {
+                                    nombresSabores.Add(sabor.nombre);
+                                }
+                            }
+
+                            if (nombresSabores.Count > 0)
+                            {
+                                TextBlock textoSabores = new TextBlock
+                                {
+                                    Text = "Sabores: " +
+                                           string.Join(", ", nombresSabores),
+                                    FontSize = 10,
+                                    Foreground = new SolidColorBrush(
+                                        Color.FromRgb(110, 115, 120)),
+                                    Margin = new Thickness(8, 2, 0, 0),
+                                    TextWrapping = TextWrapping.Wrap
+                                };
+
+                                filaProducto.Children.Add(textoSabores);
+                            }
+                        }
+
+                        panelProductosPedido.Children.Add(filaProducto);
+                    }
+
+                    contenido.Children.Add(panelProductosPedido);
+                }
 
 
                 // DIRECCIÓN
@@ -427,6 +498,7 @@ namespace sistema_gestion_heladeria.Controls
                 panelPedidosActivos.Children.Add(tarjeta);
             }
         }
+
 
         private async Task CargarPedidosCompletadosHoy()
         {
@@ -760,57 +832,7 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-        private PedidoCaja CrearPedidoCaja()
-        {
-            PedidoCaja pedido =
-                new PedidoCaja();
-
-            string nombreCliente =
-                txtNombreEntrega.Text.Trim();
-
-            if (string.IsNullOrEmpty(nombreCliente))
-            {
-                nombreCliente = "Cliente mostrador";
-            }
-
-            pedido.cliente_nombre =
-                nombreCliente;
-
-            pedido.tipo_entrega =
-                tipoEntregaSeleccionado;
-
-            if (tipoEntregaSeleccionado == "Delivery")
-            {
-                pedido.telefono =
-                    txtTelefonoEntrega.Text.Trim();
-
-                pedido.direccion =
-                    txtDireccionEntrega.Text.Trim();
-            }
-            else
-            {
-                pedido.telefono =
-                    null;
-
-                pedido.direccion =
-                    null;
-            }
-
-            pedido.medio_pago =
-                medioPagoSeleccionado;
-
-            pedido.total =
-                ObtenerTotalPedido();
-
-            pedido.id =
-                usuario.IdUsuario;
-
-            pedido.productos =
-                CrearProductosPedido();
-
-            return pedido;
-        }
-
+     
         private decimal ObtenerTotalPedido()
         {
             decimal total = 0;
@@ -835,53 +857,11 @@ namespace sistema_gestion_heladeria.Controls
         }
 
 
-        private List<ProductoPedido> CrearProductosPedido()
-        {
-            List<ProductoPedido> productos =
-                new List<ProductoPedido>();
 
-            foreach (Producto producto in productosDisponibles)
-            {
-                if (!cantidadesProductos.ContainsKey(
-                    producto.IdProducto))
-                {
-                    continue;
-                }
 
-                int cantidad =
-                    cantidadesProductos[
-                        producto.IdProducto];
 
-                decimal subtotal =
-                    producto.Precio * cantidad;
 
-                ProductoPedido productoPedido =
-                    new ProductoPedido();
 
-                productoPedido.id_producto =
-                    producto.IdProducto;
-
-                productoPedido.id_vc =
-                    null;
-
-                productoPedido.cantidad =
-                    cantidad;
-
-                productoPedido.precio_unitario =
-                    producto.Precio;
-
-                productoPedido.subtotal =
-                    subtotal;
-
-                productoPedido.sabores =
-                    new List<int>();
-
-                productos.Add(
-                    productoPedido);
-            }
-
-            return productos;
-        }
 
 
 
@@ -948,6 +928,7 @@ namespace sistema_gestion_heladeria.Controls
       "Pedido enviado a cocina correctamente.");
 
             cantidadesProductos.Clear();
+            saboresPorProducto.Clear();
 
             RenderizarPedidoActual();
 
@@ -1062,6 +1043,97 @@ namespace sistema_gestion_heladeria.Controls
 
 
         //sabores
+
+
+        private PedidoCaja CrearPedidoCaja()
+        {
+            PedidoCaja pedido =
+                new PedidoCaja();
+
+            string nombreCliente =
+                txtNombreEntrega.Text.Trim();
+
+            if (string.IsNullOrEmpty(nombreCliente))
+            {
+                nombreCliente = "Cliente mostrador";
+            }
+
+            pedido.cliente_nombre =
+                nombreCliente;
+
+            pedido.tipo_entrega =
+                tipoEntregaSeleccionado;
+
+            if (tipoEntregaSeleccionado == "Delivery")
+            {
+                pedido.telefono =
+                    txtTelefonoEntrega.Text.Trim();
+
+                pedido.direccion =
+                    txtDireccionEntrega.Text.Trim();
+            }
+            else
+            {
+                pedido.telefono =
+                    null;
+
+                pedido.direccion =
+                    null;
+            }
+
+            pedido.medio_pago =
+                medioPagoSeleccionado;
+
+            pedido.total =
+                ObtenerTotalPedido();
+
+            pedido.id =
+                usuario.IdUsuario;
+
+            pedido.productos =
+                CrearProductosPedido();
+
+            return pedido;
+        }
+
+        private List<ProductoPedido> CrearProductosPedido()
+        {
+            List<ProductoPedido> productos = new List<ProductoPedido>();
+
+            foreach (Producto producto in productosDisponibles)
+            {
+                if (!cantidadesProductos.ContainsKey(producto.IdProducto))
+                    continue;
+
+                int cantidad = cantidadesProductos[producto.IdProducto];
+
+                decimal subtotal = producto.Precio * cantidad;
+
+                List<int> saboresSeleccionados;
+
+                if (!saboresPorProducto.TryGetValue(
+                    producto.IdProducto, out saboresSeleccionados))
+                {
+                    saboresSeleccionados = new List<int>();
+                }
+
+                ProductoPedido productoPedido = new ProductoPedido();
+
+                productoPedido.id_producto = producto.IdProducto;
+                productoPedido.id_vc = null;
+                productoPedido.cantidad = cantidad;
+                productoPedido.precio_unitario = producto.Precio;
+                productoPedido.subtotal = subtotal;
+
+                // Copiar los IDs de los sabores seleccionados.
+                productoPedido.sabores = new List<int>(saboresSeleccionados);
+
+                productos.Add(productoPedido);
+            }
+
+            return productos;
+        }
+
 
         private void CrearFilaPedido(Producto producto, int cantidad)
         {
