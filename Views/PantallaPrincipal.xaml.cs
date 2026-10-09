@@ -115,7 +115,8 @@ namespace sistema_gestion_heladeria.Views
                     break;
 
                 case "administrador":
-                    PanelContenido.Content = new administradorControl();
+                    // Administrador recibe el socket compartido para actualizar su dashboard en tiempo real.
+                    PanelContenido.Content = new administradorControl(socket);
                     break;
 
             }

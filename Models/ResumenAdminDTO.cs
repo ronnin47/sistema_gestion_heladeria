@@ -8,6 +8,8 @@ using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO que representa los indicadores del dashboard de Administrador.
+    // Incluye totales del día y cantidades por estado de los pedidos.
     public class ResumenAdminDTO
     {
         [JsonProperty("pedidos_hoy")] public int PedidosHoy { get; set; }

@@ -12,15 +12,22 @@ namespace sistema_gestion_heladeria.Controls
 {
     public partial class administradorControl : UserControl
     {
+        // Service que concentra las llamadas de Administrador a la API.
         private readonly AdministradorService servicio = new AdministradorService();
+        // Colecciones enlazadas a los DataGrid. Al modificarlas, la interfaz refleja los datos actualizados.
         private readonly ObservableCollection<ClienteAdminDTO> clientes = new ObservableCollection<ClienteAdminDTO>();
         private readonly ObservableCollection<ProveedorAdminDTO> proveedores = new ObservableCollection<ProveedorAdminDTO>();
         private readonly ObservableCollection<UsuarioAdminDTO> empleados = new ObservableCollection<UsuarioAdminDTO>();
         private readonly ObservableCollection<ProductoAdminDTO> productos = new ObservableCollection<ProductoAdminDTO>();
+        // Se reutiliza la conexión Socket.IO creada por PantallaPrincipal.
+        private SocketIOClient.SocketIO socket;
 
-        public administradorControl()
+        // Inicializa la pantalla, recibe el socket compartido y conecta las colecciones con sus DataGrid.
+        public administradorControl(SocketIOClient.SocketIO _socket)
         {
             InitializeComponent();
+            this.socket = _socket;
+            ConfigurarSocket();
             DgClientes.ItemsSource = clientes;
             DgProveedores.ItemsSource = proveedores;
             DgEmpleados.ItemsSource = empleados;
@@ -30,11 +37,55 @@ namespace sistema_gestion_heladeria.Controls
             Loaded += AdministradorControl_Loaded;
         }
 
+        // Escucha cambios de pedidos en tiempo real.
+        // Ante un pedido nuevo o un cambio de estado solo se recarga el resumen, evitando consultas innecesarias.
+        private void ConfigurarSocket()
+        {
+            if (socket == null)
+                return;
+
+            socket.On("pedido_creado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error pedido_creado en administrador: " + ex.Message
+                    );
+                }
+            });
+
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado en administrador: " + ex.Message
+                    );
+                }
+            });
+        }
+
+        // Al abrir Administrador se realiza la carga inicial completa de todas las secciones.
         private async void AdministradorControl_Loaded(object sender, RoutedEventArgs e)
         {
             await RecargarTodo();
         }
 
+        // Obtiene desde el Service el dashboard, clientes, proveedores, empleados y productos.
         private async System.Threading.Tasks.Task RecargarTodo()
         {
             try
@@ -52,6 +103,23 @@ namespace sistema_gestion_heladeria.Controls
             }
         }
 
+        // Actualización liviana utilizada por Socket.IO: consulta únicamente los indicadores del dashboard.
+        private async System.Threading.Tasks.Task RecargarResumen()
+        {
+            try
+            {
+                var resumen = await servicio.ObtenerResumen();
+                CargarResumen(resumen);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "Error al actualizar el resumen de administrador: " + ex.Message
+                );
+            }
+        }
+
+        // Reemplaza el contenido de una ObservableCollection sin cambiar la colección enlazada al DataGrid.
         private void Reemplazar<T>(ObservableCollection<T> destino, System.Collections.Generic.IEnumerable<T> datos)
         {
             destino.Clear();
@@ -59,6 +127,7 @@ namespace sistema_gestion_heladeria.Controls
             foreach (var item in datos) destino.Add(item);
         }
 
+        // Lleva los datos del ResumenAdminDTO a los indicadores y barras visuales del dashboard.
         private void CargarResumen(ResumenAdminDTO r)
         {
             if (r == null) return;
@@ -75,8 +144,10 @@ namespace sistema_gestion_heladeria.Controls
             BarCompletados.Value = Porcentaje(r.Completados, totalEstados);
         }
 
+        // Calcula el porcentaje que representa cada estado dentro del total de pedidos del resumen.
         private double Porcentaje(int valor, int total) => total == 0 ? 0 : (valor * 100.0 / total);
 
+        // Controla qué sección de Administrador se muestra y resalta el botón de navegación activo.
         private void MostrarPanel(string panel)
         {
             PanelResumen.Visibility = panel == "resumen" ? Visibility.Visible : Visibility.Collapsed;
@@ -106,6 +177,7 @@ namespace sistema_gestion_heladeria.Controls
         private void BtnEmpleados_Click(object sender, RoutedEventArgs e) { MostrarPanel("empleados"); }
         private void BtnProductos_Click(object sender, RoutedEventArgs e) { MostrarPanel("productos"); }
 
+        // CLIENTES: carga en el formulario los datos de la fila seleccionada para permitir su modificación.
         private void DgClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var c = DgClientes.SelectedItem as ClienteAdminDTO;
@@ -124,6 +196,7 @@ namespace sistema_gestion_heladeria.Controls
             await Ejecutar(async () => { await servicio.ModificarCliente(c); Reemplazar(clientes, await servicio.ObtenerClientes()); }, "Datos del cliente modificados.");
         }
 
+        // PROVEEDORES: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
         private void DgProveedores_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var p = DgProveedores.SelectedItem as ProveedorAdminDTO;
@@ -161,6 +234,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private void LimpiarProveedor() { TxtProveedorNombre.Clear(); TxtProveedorTelefono.Clear(); TxtProveedorDireccion.Clear(); DgProveedores.SelectedItem = null; }
 
+        // EMPLEADOS: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
         private void DgEmpleados_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var u = DgEmpleados.SelectedItem as UsuarioAdminDTO;
@@ -203,6 +277,7 @@ namespace sistema_gestion_heladeria.Controls
 
         private void LimpiarEmpleado() { TxtEmpleadoNombre.Clear(); TxtEmpleadoApellido.Clear(); TxtEmpleadoEmail.Clear(); TxtEmpleadoPass.Clear(); TxtEmpleadoImagen.Clear(); CmbEmpleadoRol.SelectedIndex = 0; DgEmpleados.SelectedItem = null; }
 
+        // PRODUCTOS: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
         private void DgProductos_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var p = DgProductos.SelectedItem as ProductoAdminDTO;
@@ -242,8 +317,10 @@ namespace sistema_gestion_heladeria.Controls
 
         private void LimpiarProducto() { TxtProductoNombre.Clear(); TxtProductoTipo.Clear(); TxtProductoPrecio.Clear(); TxtProductoDescripcion.Clear(); TxtProductoStock.Clear(); TxtProductoCategoria.Clear(); ChkProductoActivo.IsChecked = true; DgProductos.SelectedItem = null; }
 
+        // Confirmación común antes de ejecutar eliminaciones desde Administrador.
         private bool Confirmar(string mensaje) => MessageBox.Show(mensaje, "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
 
+        // Ejecuta una operación asincrónica de Admin y centraliza los mensajes de éxito/error para el usuario.
         private async System.Threading.Tasks.Task Ejecutar(Func<System.Threading.Tasks.Task> accion, string mensajeExito)
         {
             try { await accion(); MessageBox.Show(mensajeExito, "Administrador", MessageBoxButton.OK, MessageBoxImage.Information); }

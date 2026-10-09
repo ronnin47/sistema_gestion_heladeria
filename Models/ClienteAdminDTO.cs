@@ -8,6 +8,8 @@ using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO utilizado por Administrador para mostrar y modificar los datos del cliente asociados a una venta.
+    // JsonProperty mantiene la correspondencia entre los nombres del JSON de la API y las propiedades de C#.
     public class ClienteAdminDTO
     {
         [JsonProperty("id_venta")] public int IdVenta { get; set; }

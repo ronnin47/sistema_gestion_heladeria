@@ -8,6 +8,7 @@ using sistema_gestion_heladeria.Config;
 
 namespace sistema_gestion_heladeria.Models
 {
+    // DTO utilizado por Administrador para gestionar los productos disponibles en el sistema.
     public class ProductoAdminDTO
     {
         [JsonProperty("id_producto")] public int IdProducto { get; set; }
