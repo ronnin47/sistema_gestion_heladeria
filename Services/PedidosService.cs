@@ -17,7 +17,7 @@ namespace sistema_gestion_heladeria.Services
         public async Task<bool> InsertarPedido(PedidoCaja pedido)
         {
 
-
+            /*
             // MOSTRAR PEDIDO Y SABORES ANTES DEL TRY
             string mensaje = "PEDIDO A ENVIAR\n\n";
 
@@ -40,7 +40,7 @@ namespace sistema_gestion_heladeria.Services
             }
 
             MessageBox.Show(mensaje, "Ver sabores del pedido");
-
+            */
             try
             {
 
