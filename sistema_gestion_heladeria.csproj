@@ -185,6 +185,7 @@
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Cliente.cs" />
+    <Compile Include="Models\HeladoSabor.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\PedidoProduccionDTO.cs" />
@@ -196,6 +197,7 @@
     <Compile Include="Services\LoginService.cs" />
     <Compile Include="Services\PedidosService.cs" />
     <Compile Include="Services\ProductosService.cs" />
+    <Compile Include="Services\SaboresService.cs" />
     <Compile Include="Views\PantallaLogin.xaml.cs">
       <DependentUpon>PantallaLogin.xaml</DependentUpon>
     </Compile>

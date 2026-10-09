@@ -8,18 +8,9 @@
           d:DesignHeight="450"
           d:DesignWidth="800">
 
- 
+
     <Grid Background="#F3F4F6"
       Margin="12">
-
-
-
-
-
-
-
-
-
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*" />
             <ColumnDefinition Width="10" />
@@ -521,7 +512,7 @@
         </Border>
 
     </Grid>
-
-
 </UserControl>
+
+
 
