@@ -39,13 +39,13 @@ namespace sistema_gestion_heladeria.Views
         }
 
 
-        private async void Window_Loaded (object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             CargarDatosUsuario();
 
-           
+
             //Segun el rol del usuario que userControl le renderiza
-           
+
             await ConectarSocket();
 
             CargarPanelSegunEstado();
@@ -60,7 +60,7 @@ namespace sistema_gestion_heladeria.Views
         {
             try
             {
-                socket = new SocketIOClient.SocketIO( new Uri( ApiConfig.SocketUrl ));
+                socket = new SocketIOClient.SocketIO(new Uri(ApiConfig.SocketUrl));
 
                 socket.OnConnected +=
                     (s, args) =>
@@ -115,7 +115,8 @@ namespace sistema_gestion_heladeria.Views
                     break;
 
                 case "administrador":
-                    PanelContenido.Content = new administradorControl();
+                    // Administrador recibe el socket compartido para actualizar su dashboard en tiempo real.
+                    PanelContenido.Content = new administradorControl(socket);
                     break;
 
             }
