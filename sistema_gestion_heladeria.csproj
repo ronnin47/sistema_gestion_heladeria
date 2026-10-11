@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -185,22 +185,15 @@
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models\Cliente.cs" />
-    <Compile Include="Models\ClienteAdminDTO.cs" />
-    <Compile Include="Models\ErrorApiDTO.cs" />
     <Compile Include="Models\HeladoSabor.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />
     <Compile Include="Models\PedidoCaja.cs" />
     <Compile Include="Models\PedidoProduccionDTO.cs" />
     <Compile Include="Models\Producto.cs" />
-    <Compile Include="Models\ProductoAdminDTO.cs" />
     <Compile Include="Models\ProductoPedidoDTO.cs" />
-    <Compile Include="Models\ProveedorAdminDTO.cs" />
-    <Compile Include="Models\ResumenAdminDTO.cs" />
     <Compile Include="Models\SaborPedidoDTO.cs" />
     <Compile Include="Models\SessionDataUser.cs" />
     <Compile Include="Models\SesionUsuario.cs" />
-    <Compile Include="Models\UsuarioAdminDTO.cs" />
-    <Compile Include="Services\AdministradorService.cs" />
     <Compile Include="Services\LoginService.cs" />
     <Compile Include="Services\PedidosService.cs" />
     <Compile Include="Services\ProductosService.cs" />
