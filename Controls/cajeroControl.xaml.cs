@@ -25,7 +25,7 @@ namespace sistema_gestion_heladeria.Controls
             new Dictionary<int, int>();
 
 
-       
+
 
         string medioPagoSeleccionado = "Efectivo";
 
@@ -40,19 +40,34 @@ namespace sistema_gestion_heladeria.Controls
         private SocketIOClient.SocketIO socket;
 
 
+        private Dictionary<int, List<int>> saboresPorProducto = new Dictionary<int, List<int>>();
 
 
-        /// <summary>
-        ///
-        /// </summary>
-        /// <param name="_user"></param>
-        /// <param name="socket"></param>
+
+
+
+
+
+        //necesitamos que esto venga d ela base de datos y cargarlo cuando cargue la instancia de cajero
+
+
+
+
+
+
+        private List<HeladoSabor> saboresDisponibles = new List<HeladoSabor>();
+
+
+
+
+
+
 
         public cajeroControl(SessionDataUser _user, SocketIOClient.SocketIO socket)
         {
             usuario = _user;
 
-         // MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
+            // MessageBox.Show($"id:{usuario.IdUsuario} email:{ usuario.Email}");
 
             InitializeComponent();
 
@@ -74,6 +89,13 @@ namespace sistema_gestion_heladeria.Controls
                 await pedidosService.ObtenerPedidosActivos();
 
 
+
+            await ConsumirTodosSabores();
+
+
+
+
+
             /*
             MessageBox.Show(
                 "Pedidos recibidos: " + pedidosActivos.Count
@@ -83,6 +105,26 @@ namespace sistema_gestion_heladeria.Controls
             await CargarPedidosCompletadosHoy();
 
             RenderizarPedidosActivos();
+        }
+
+
+
+
+        private async Task ConsumirTodosSabores()
+        {
+            SaboresService saboresService = new SaboresService();
+
+            saboresDisponibles =
+                  await saboresService.ConsumirTodosSabores(usuario.IdUsuario);
+            /*
+            MessageBox.Show(
+                "Sabores disponibles: " +
+                (saboresDisponibles == null ? 0 : saboresDisponibles.Count),
+                "Sabores",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information
+            );
+            */
         }
 
 
@@ -150,7 +192,8 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-        private void RenderizarPedidosActivos()
+
+private void RenderizarPedidosActivos()
         {
             panelPedidosActivos.Children.Clear();
 
@@ -254,6 +297,76 @@ namespace sistema_gestion_heladeria.Controls
                 informacion.Children.Add(pago);
 
                 contenido.Children.Add(informacion);
+
+
+                // PRODUCTOS Y SABORES DEL PEDIDO
+                if (pedido.productos != null &&
+                    pedido.productos.Count > 0)
+                {
+                    StackPanel panelProductosPedido = new StackPanel
+                    {
+                        Margin = new Thickness(0, 6, 0, 2)
+                    };
+
+                    foreach (ProductoPedidoDTO producto in pedido.productos)
+                    {
+                        StackPanel filaProducto = new StackPanel
+                        {
+                            Margin = new Thickness(0, 2, 0, 4)
+                        };
+
+                        // NOMBRE Y CANTIDAD DEL PRODUCTO
+                        TextBlock nombreProducto = new TextBlock
+                        {
+                            Text = (producto.producto_nombre ?? "Producto")
+                                   + " x" + producto.cantidad,
+                            FontSize = 11,
+                            FontWeight = FontWeights.SemiBold,
+                            Foreground = new SolidColorBrush(
+                                Color.FromRgb(55, 60, 65)),
+                            TextWrapping = TextWrapping.Wrap
+                        };
+
+                        filaProducto.Children.Add(nombreProducto);
+
+
+                        // SABORES DEL PRODUCTO
+                        if (producto.sabores != null &&
+                            producto.sabores.Count > 0)
+                        {
+                            List<string> nombresSabores = new List<string>();
+
+                            foreach (SaborPedidoDTO sabor in producto.sabores)
+                            {
+                                if (sabor != null &&
+                                    !string.IsNullOrWhiteSpace(sabor.nombre))
+                                {
+                                    nombresSabores.Add(sabor.nombre);
+                                }
+                            }
+
+                            if (nombresSabores.Count > 0)
+                            {
+                                TextBlock textoSabores = new TextBlock
+                                {
+                                    Text = "Sabores: " +
+                                           string.Join(", ", nombresSabores),
+                                    FontSize = 10,
+                                    Foreground = new SolidColorBrush(
+                                        Color.FromRgb(110, 115, 120)),
+                                    Margin = new Thickness(8, 2, 0, 0),
+                                    TextWrapping = TextWrapping.Wrap
+                                };
+
+                                filaProducto.Children.Add(textoSabores);
+                            }
+                        }
+
+                        panelProductosPedido.Children.Add(filaProducto);
+                    }
+
+                    contenido.Children.Add(panelProductosPedido);
+                }
 
 
                 // DIRECCIÓN
@@ -386,6 +499,7 @@ namespace sistema_gestion_heladeria.Controls
             }
         }
 
+
         private async Task CargarPedidosCompletadosHoy()
         {
             List<PedidoActivoDTO> pedidosCompletadosHoy =
@@ -411,7 +525,6 @@ namespace sistema_gestion_heladeria.Controls
 
             RenderizarProductos();
         }
-
 
 
         private void RenderizarProductos()
@@ -501,6 +614,9 @@ namespace sistema_gestion_heladeria.Controls
             RenderizarPedidoActual();
         }
 
+
+
+
         private void RenderizarPedidoActual()
         {
             panelPedidoActual.Children.Clear();
@@ -530,163 +646,8 @@ namespace sistema_gestion_heladeria.Controls
                 "$ " + total.ToString("N2");
         }
 
-        private void CrearFilaPedido(
-            Producto producto,
-            int cantidad)
-        {
-            Border contenedor =
-                new Border();
+  
 
-            contenedor.Background =
-                new SolidColorBrush(
-                    Color.FromRgb(250, 250, 250));
-
-            contenedor.BorderBrush =
-                new SolidColorBrush(
-                    Color.FromRgb(225, 228, 232));
-
-            contenedor.BorderThickness =
-                new Thickness(0, 0, 0, 1);
-
-            contenedor.Padding =
-                new Thickness(6, 5, 6, 5);
-
-
-            Grid fila =
-                new Grid();
-
-            fila.Height = 38;
-
-
-            fila.ColumnDefinitions.Add(
-                new ColumnDefinition
-                {
-                    Width = new GridLength(1, GridUnitType.Star)
-                });
-
-            fila.ColumnDefinitions.Add(
-                new ColumnDefinition
-                {
-                    Width = GridLength.Auto
-                });
-
-
-            TextBlock nombre =
-                new TextBlock();
-
-            nombre.Text =
-                producto.Nombre;
-
-            nombre.FontSize = 13;
-
-            nombre.FontWeight =
-                FontWeights.SemiBold;
-
-            nombre.Foreground =
-                new SolidColorBrush(
-                    Color.FromRgb(55, 60, 65));
-
-            nombre.VerticalAlignment =
-                VerticalAlignment.Center;
-
-            nombre.Margin =
-                new Thickness(4, 0, 10, 0);
-
-
-            Grid.SetColumn(nombre, 0);
-
-            fila.Children.Add(nombre);
-
-
-            StackPanel controles =
-                new StackPanel();
-
-            controles.Orientation =
-                Orientation.Horizontal;
-
-            controles.VerticalAlignment =
-                VerticalAlignment.Center;
-
-
-            Button botonMenos =
-                CrearBotonControl("-");
-
-            botonMenos.Tag =
-                producto;
-
-            botonMenos.Click +=
-                BotonMenos_Click;
-
-
-            TextBlock textoCantidad =
-                new TextBlock();
-
-            textoCantidad.Text =
-                cantidad.ToString();
-
-            textoCantidad.Width = 28;
-
-            textoCantidad.TextAlignment =
-                TextAlignment.Center;
-
-            textoCantidad.VerticalAlignment =
-                VerticalAlignment.Center;
-
-            textoCantidad.FontSize = 13;
-
-            textoCantidad.FontWeight =
-                FontWeights.SemiBold;
-
-            textoCantidad.Foreground =
-                new SolidColorBrush(
-                    Color.FromRgb(50, 55, 60));
-
-
-            Button botonMas =
-                CrearBotonControl("+");
-
-            botonMas.Tag =
-                producto;
-
-            botonMas.Click +=
-                BotonMas_Click;
-
-
-            Button botonEliminar =
-                CrearBotonControl("×");
-
-            botonEliminar.Width = 28;
-
-            botonEliminar.Margin =
-                new Thickness(8, 0, 0, 0);
-
-            botonEliminar.Foreground =
-                new SolidColorBrush(
-                    Color.FromRgb(190, 65, 65));
-
-            botonEliminar.Tag =
-                producto;
-
-            botonEliminar.Click +=
-                BotonEliminar_Click;
-
-
-            controles.Children.Add(botonMenos);
-            controles.Children.Add(textoCantidad);
-            controles.Children.Add(botonMas);
-            controles.Children.Add(botonEliminar);
-
-
-            Grid.SetColumn(controles, 1);
-
-            fila.Children.Add(controles);
-
-
-            contenedor.Child = fila;
-
-            panelPedidoActual.Children.Add(
-                contenedor);
-        }
 
         private Button CrearBotonControl(
             string texto)
@@ -809,7 +770,7 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
- 
+
 
 
 
@@ -871,57 +832,7 @@ namespace sistema_gestion_heladeria.Controls
 
 
 
-        private PedidoCaja CrearPedidoCaja()
-        {
-            PedidoCaja pedido =
-                new PedidoCaja();
-
-            string nombreCliente =
-                txtNombreEntrega.Text.Trim();
-
-            if (string.IsNullOrEmpty(nombreCliente))
-            {
-                nombreCliente = "Cliente mostrador";
-            }
-
-            pedido.cliente_nombre =
-                nombreCliente;
-
-            pedido.tipo_entrega =
-                tipoEntregaSeleccionado;
-
-            if (tipoEntregaSeleccionado == "Delivery")
-            {
-                pedido.telefono =
-                    txtTelefonoEntrega.Text.Trim();
-
-                pedido.direccion =
-                    txtDireccionEntrega.Text.Trim();
-            }
-            else
-            {
-                pedido.telefono =
-                    null;
-
-                pedido.direccion =
-                    null;
-            }
-
-            pedido.medio_pago =
-                medioPagoSeleccionado;
-
-            pedido.total =
-                ObtenerTotalPedido();
-
-            pedido.id =
-                usuario.IdUsuario;
-
-            pedido.productos =
-                CrearProductosPedido();
-
-            return pedido;
-        }
-
+     
         private decimal ObtenerTotalPedido()
         {
             decimal total = 0;
@@ -946,53 +857,11 @@ namespace sistema_gestion_heladeria.Controls
         }
 
 
-        private List<ProductoPedido> CrearProductosPedido()
-        {
-            List<ProductoPedido> productos =
-                new List<ProductoPedido>();
 
-            foreach (Producto producto in productosDisponibles)
-            {
-                if (!cantidadesProductos.ContainsKey(
-                    producto.IdProducto))
-                {
-                    continue;
-                }
 
-                int cantidad =
-                    cantidadesProductos[
-                        producto.IdProducto];
 
-                decimal subtotal =
-                    producto.Precio * cantidad;
 
-                ProductoPedido productoPedido =
-                    new ProductoPedido();
 
-                productoPedido.id_producto =
-                    producto.IdProducto;
-
-                productoPedido.id_vc =
-                    null;
-
-                productoPedido.cantidad =
-                    cantidad;
-
-                productoPedido.precio_unitario =
-                    producto.Precio;
-
-                productoPedido.subtotal =
-                    subtotal;
-
-                productoPedido.sabores =
-                    new List<int>();
-
-                productos.Add(
-                    productoPedido);
-            }
-
-            return productos;
-        }
 
 
 
@@ -1030,7 +899,7 @@ namespace sistema_gestion_heladeria.Controls
 
             PedidoCaja pedido = CrearPedidoCaja();
 
-           
+
 
             bool guardado = await pedidosService.InsertarPedido(pedido);
 
@@ -1059,6 +928,7 @@ namespace sistema_gestion_heladeria.Controls
       "Pedido enviado a cocina correctamente.");
 
             cantidadesProductos.Clear();
+            saboresPorProducto.Clear();
 
             RenderizarPedidoActual();
 
@@ -1170,6 +1040,428 @@ namespace sistema_gestion_heladeria.Controls
             }
         }
 
+
+
+        //sabores
+
+
+        private PedidoCaja CrearPedidoCaja()
+        {
+            PedidoCaja pedido =
+                new PedidoCaja();
+
+            string nombreCliente =
+                txtNombreEntrega.Text.Trim();
+
+            if (string.IsNullOrEmpty(nombreCliente))
+            {
+                nombreCliente = "Cliente mostrador";
+            }
+
+            pedido.cliente_nombre =
+                nombreCliente;
+
+            pedido.tipo_entrega =
+                tipoEntregaSeleccionado;
+
+            if (tipoEntregaSeleccionado == "Delivery")
+            {
+                pedido.telefono =
+                    txtTelefonoEntrega.Text.Trim();
+
+                pedido.direccion =
+                    txtDireccionEntrega.Text.Trim();
+            }
+            else
+            {
+                pedido.telefono =
+                    null;
+
+                pedido.direccion =
+                    null;
+            }
+
+            pedido.medio_pago =
+                medioPagoSeleccionado;
+
+            pedido.total =
+                ObtenerTotalPedido();
+
+            pedido.id =
+                usuario.IdUsuario;
+
+            pedido.productos =
+                CrearProductosPedido();
+
+            return pedido;
+        }
+
+        private List<ProductoPedido> CrearProductosPedido()
+        {
+            List<ProductoPedido> productos = new List<ProductoPedido>();
+
+            foreach (Producto producto in productosDisponibles)
+            {
+                if (!cantidadesProductos.ContainsKey(producto.IdProducto))
+                    continue;
+
+                int cantidad = cantidadesProductos[producto.IdProducto];
+
+                decimal subtotal = producto.Precio * cantidad;
+
+                List<int> saboresSeleccionados;
+
+                if (!saboresPorProducto.TryGetValue(
+                    producto.IdProducto, out saboresSeleccionados))
+                {
+                    saboresSeleccionados = new List<int>();
+                }
+
+                ProductoPedido productoPedido = new ProductoPedido();
+
+                productoPedido.id_producto = producto.IdProducto;
+                productoPedido.id_vc = null;
+                productoPedido.cantidad = cantidad;
+                productoPedido.precio_unitario = producto.Precio;
+                productoPedido.subtotal = subtotal;
+
+                // Copiar los IDs de los sabores seleccionados.
+                productoPedido.sabores = new List<int>(saboresSeleccionados);
+
+                productos.Add(productoPedido);
+            }
+
+            return productos;
+        }
+
+
+        private void CrearFilaPedido(Producto producto, int cantidad)
+        {
+            Border contenedor = new Border
+            {
+                Background = new SolidColorBrush(Color.FromRgb(250, 250, 250)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(225, 228, 232)),
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding = new Thickness(6, 5, 6, 5)
+            };
+
+            Grid fila = new Grid();
+
+            fila.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = new GridLength(1, GridUnitType.Star)
+            });
+
+            fila.ColumnDefinitions.Add(new ColumnDefinition
+            {
+                Width = GridLength.Auto
+            });
+
+            // CONTENEDOR DEL NOMBRE Y LOS SABORES
+            StackPanel productoPanel = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            // NOMBRE DEL PRODUCTO
+            TextBlock nombre = new TextBlock
+            {
+                Text = producto.Nombre,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(55, 60, 65)),
+                VerticalAlignment = VerticalAlignment.Center,
+                Margin = new Thickness(4, 0, 8, 0)
+            };
+
+            productoPanel.Children.Add(nombre);
+
+            // OBTENER SABORES SELECCIONADOS
+            List<int> seleccionados;
+
+            if (!saboresPorProducto.TryGetValue(producto.IdProducto, out seleccionados))
+            {
+                seleccionados = new List<int>();
+            }
+
+            string textoSabores = "Elegir sabores (" + seleccionados.Count + "/3)";
+
+            if (seleccionados.Count > 0)
+            {
+                List<string> nombresSabores = new List<string>();
+
+                foreach (int idSabor in seleccionados)
+                {
+                    HeladoSabor sabor = saboresDisponibles.Find(
+                        s => s.IdSabor == idSabor);
+
+                    if (sabor != null)
+                        nombresSabores.Add(sabor.Nombre);
+                }
+
+                textoSabores = string.Join(", ", nombresSabores);
+            }
+
+            // BOTÓN DE SABORES A LA DERECHA DEL PRODUCTO
+            Button botonSabores = new Button
+            {
+                Content = textoSabores,
+                Tag = producto,
+                Height = 27,
+                Margin = new Thickness(4, 0, 4, 0),
+                Padding = new Thickness(8, 2, 8, 2),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Left,
+                Background = new SolidColorBrush(Color.FromRgb(255, 248, 225)),
+                Foreground = new SolidColorBrush(Color.FromRgb(120, 90, 20)),
+                BorderBrush = new SolidColorBrush(Color.FromRgb(235, 205, 130)),
+                BorderThickness = new Thickness(1),
+                FontSize = 11,
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+
+            botonSabores.Click += BotonElegirSabores_Click;
+
+            productoPanel.Children.Add(botonSabores);
+
+            Grid.SetColumn(productoPanel, 0);
+            fila.Children.Add(productoPanel);
+
+            // CONTROLES DE CANTIDAD
+            StackPanel controles = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            Button botonMenos = CrearBotonControl("-");
+            botonMenos.Tag = producto;
+            botonMenos.Click += BotonMenos_Click;
+
+            TextBlock textoCantidad = new TextBlock
+            {
+                Text = cantidad.ToString(),
+                Width = 24,
+                TextAlignment = TextAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+                FontSize = 13,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = new SolidColorBrush(Color.FromRgb(50, 55, 60))
+            };
+
+            Button botonMas = CrearBotonControl("+");
+            botonMas.Tag = producto;
+            botonMas.Click += BotonMas_Click;
+
+            Button botonEliminar = CrearBotonControl("×");
+            botonEliminar.Width = 28;
+            botonEliminar.Margin = new Thickness(5, 0, 0, 0);
+            botonEliminar.Foreground = new SolidColorBrush(Color.FromRgb(190, 65, 65));
+            botonEliminar.Tag = producto;
+            botonEliminar.Click += BotonEliminar_Click;
+
+            controles.Children.Add(botonMenos);
+            controles.Children.Add(textoCantidad);
+            controles.Children.Add(botonMas);
+            controles.Children.Add(botonEliminar);
+
+            Grid.SetColumn(controles, 1);
+            fila.Children.Add(controles);
+
+            contenedor.Child = fila;
+            panelPedidoActual.Children.Add(contenedor);
+        }
+
+
+
+
+        private void BotonElegirSabores_Click(object sender, RoutedEventArgs e)
+        {
+            Button boton = sender as Button;
+
+            if (boton == null)
+                return;
+
+            Producto producto = boton.Tag as Producto;
+
+            if (producto == null)
+                return;
+
+            List<int> seleccionAnterior;
+
+            if (!saboresPorProducto.TryGetValue(producto.IdProducto, out seleccionAnterior))
+                seleccionAnterior = new List<int>();
+
+            Window ventana = new Window
+            {
+                Title = "Elegir sabores",
+                Width = 340,
+                SizeToContent = SizeToContent.Height,
+                MinHeight = 250,
+                MaxHeight = 500,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Owner = Window.GetWindow(this),
+                ResizeMode = ResizeMode.NoResize,
+                Background = Brushes.White,
+                ShowInTaskbar = false
+            };
+
+            StackPanel contenido = new StackPanel
+            {
+                Margin = new Thickness(18)
+            };
+
+            TextBlock titulo = new TextBlock
+            {
+                Text = producto.Nombre,
+                FontSize = 17,
+                FontWeight = FontWeights.Bold,
+                Foreground = new SolidColorBrush(Color.FromRgb(45, 50, 55))
+            };
+
+            TextBlock subtitulo = new TextBlock
+            {
+                Text = "Seleccioná entre 1 y 3 sabores",
+                FontSize = 12,
+                Foreground = new SolidColorBrush(Color.FromRgb(110, 115, 120)),
+                Margin = new Thickness(0, 4, 0, 12)
+            };
+
+            TextBlock contador = new TextBlock
+            {
+                Text = "Seleccionados: " + seleccionAnterior.Count + "/3",
+                FontSize = 12,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
+
+            StackPanel listaSabores = new StackPanel();
+
+            List<CheckBox> casillas = new List<CheckBox>();
+
+            foreach (HeladoSabor sabor in saboresDisponibles)
+            {
+                CheckBox casilla = new CheckBox
+                {
+                    Content = sabor.Nombre,
+                    Tag = sabor.IdSabor,
+                    IsChecked = seleccionAnterior.Contains(sabor.IdSabor),
+                    FontSize = 13,
+                    Margin = new Thickness(3, 6, 3, 6),
+                    Foreground = new SolidColorBrush(Color.FromRgb(50, 55, 60))
+                };
+
+                casillas.Add(casilla);
+                listaSabores.Children.Add(casilla);
+            }
+
+            Button confirmar = new Button
+            {
+                Content = "Confirmar sabores",
+                Height = 36,
+                Margin = new Thickness(0, 14, 0, 0),
+                Background = new SolidColorBrush(Color.FromRgb(63, 125, 74)),
+                Foreground = Brushes.White,
+                BorderThickness = new Thickness(0),
+                FontWeight = FontWeights.SemiBold,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                IsEnabled = seleccionAnterior.Count >= 1
+            };
+
+            Button cancelar = new Button
+            {
+                Content = "Cancelar",
+                Height = 30,
+                Margin = new Thickness(0, 6, 0, 0),
+                Background = new SolidColorBrush(Color.FromRgb(245, 246, 247)),
+                Foreground = new SolidColorBrush(Color.FromRgb(55, 60, 65)),
+                BorderThickness = new Thickness(0),
+                Cursor = System.Windows.Input.Cursors.Hand
+            };
+
+            Action actualizarSeleccion = () =>
+            {
+                int cantidadSeleccionada = 0;
+
+                foreach (CheckBox c in casillas)
+                {
+                    if (c.IsChecked == true)
+                        cantidadSeleccionada++;
+                }
+
+                contador.Text = "Seleccionados: " + cantidadSeleccionada + "/3";
+
+                foreach (CheckBox c in casillas)
+                {
+                    c.IsEnabled =
+                        c.IsChecked == true || cantidadSeleccionada < 3;
+                }
+
+                confirmar.IsEnabled =
+                    cantidadSeleccionada >= 1 &&
+                    cantidadSeleccionada <= 3;
+            };
+
+            foreach (CheckBox casilla in casillas)
+            {
+                casilla.Checked += (s, args) =>
+                {
+                    actualizarSeleccion();
+                };
+
+                casilla.Unchecked += (s, args) =>
+                {
+                    actualizarSeleccion();
+                };
+            }
+
+            confirmar.Click += (s, args) =>
+            {
+                List<int> seleccion = new List<int>();
+
+                foreach (CheckBox casilla in casillas)
+                {
+                    if (casilla.IsChecked == true)
+                        seleccion.Add((int)casilla.Tag);
+                }
+
+                if (seleccion.Count < 1 || seleccion.Count > 3)
+                    return;
+
+                saboresPorProducto[producto.IdProducto] = seleccion;
+
+                ventana.DialogResult = true;
+                ventana.Close();
+            };
+
+            cancelar.Click += (s, args) =>
+            {
+                ventana.Close();
+            };
+
+            contenido.Children.Add(titulo);
+            contenido.Children.Add(subtitulo);
+            contenido.Children.Add(contador);
+            contenido.Children.Add(listaSabores);
+            contenido.Children.Add(confirmar);
+            contenido.Children.Add(cancelar);
+
+            ScrollViewer scroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                Content = contenido
+            };
+
+            ventana.Content = scroll;
+
+            actualizarSeleccion();
+
+            if (ventana.ShowDialog() == true)
+            {
+                RenderizarPedidoActual();
+            }
+        }
+
     }
 }
-
