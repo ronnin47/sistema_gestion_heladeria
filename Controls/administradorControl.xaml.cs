@@ -1,28 +1,330 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using sistema_gestion_heladeria.Services;
+using sistema_gestion_heladeria.Models;
 
 namespace sistema_gestion_heladeria.Controls
 {
-    /// <summary>
-    /// Lógica de interacción para administradorControl.xaml
-    /// </summary>
     public partial class administradorControl : UserControl
     {
-        public administradorControl()
+        // Service que concentra las llamadas de Administrador a la API.
+        private readonly AdministradorService servicio = new AdministradorService();
+        // Colecciones enlazadas a los DataGrid. Al modificarlas, la interfaz refleja los datos actualizados.
+        private readonly ObservableCollection<ClienteAdminDTO> clientes = new ObservableCollection<ClienteAdminDTO>();
+        private readonly ObservableCollection<ProveedorAdminDTO> proveedores = new ObservableCollection<ProveedorAdminDTO>();
+        private readonly ObservableCollection<UsuarioAdminDTO> empleados = new ObservableCollection<UsuarioAdminDTO>();
+        private readonly ObservableCollection<ProductoAdminDTO> productos = new ObservableCollection<ProductoAdminDTO>();
+        // Se reutiliza la conexión Socket.IO creada por PantallaPrincipal.
+        private SocketIOClient.SocketIO socket;
+
+        // Inicializa la pantalla, recibe el socket compartido y conecta las colecciones con sus DataGrid.
+        public administradorControl(SocketIOClient.SocketIO _socket)
         {
             InitializeComponent();
+            this.socket = _socket;
+            ConfigurarSocket();
+            DgClientes.ItemsSource = clientes;
+            DgProveedores.ItemsSource = proveedores;
+            DgEmpleados.ItemsSource = empleados;
+            DgProductos.ItemsSource = productos;
+            CmbEmpleadoRol.SelectedIndex = 0;
+            MostrarPanel("resumen");
+            Loaded += AdministradorControl_Loaded;
+        }
+
+        // Escucha cambios de pedidos en tiempo real.
+        // Ante un pedido nuevo o un cambio de estado solo se recarga el resumen, evitando consultas innecesarias.
+        private void ConfigurarSocket()
+        {
+            if (socket == null)
+                return;
+
+            socket.On("pedido_creado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error pedido_creado en administrador: " + ex.Message
+                    );
+                }
+            });
+
+            socket.On("cambiar_estado", async response =>
+            {
+                try
+                {
+                    await Dispatcher.InvokeAsync(async () =>
+                    {
+                        await RecargarResumen();
+                    });
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error cambiar_estado en administrador: " + ex.Message
+                    );
+                }
+            });
+        }
+
+        // Al abrir Administrador se realiza la carga inicial completa de todas las secciones.
+        private async void AdministradorControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            await RecargarTodo();
+        }
+
+        // Obtiene desde el Service el dashboard, clientes, proveedores, empleados y productos.
+        private async System.Threading.Tasks.Task RecargarTodo()
+        {
+            try
+            {
+                var resumen = await servicio.ObtenerResumen();
+                CargarResumen(resumen);
+                Reemplazar(clientes, await servicio.ObtenerClientes());
+                Reemplazar(proveedores, await servicio.ObtenerProveedores());
+                Reemplazar(empleados, await servicio.ObtenerUsuarios());
+                Reemplazar(productos, await servicio.ObtenerProductos());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("No se pudieron cargar los datos de administración.\n" + ex.Message, "Administrador", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // Actualización liviana utilizada por Socket.IO: consulta únicamente los indicadores del dashboard.
+        private async System.Threading.Tasks.Task RecargarResumen()
+        {
+            try
+            {
+                var resumen = await servicio.ObtenerResumen();
+                CargarResumen(resumen);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "Error al actualizar el resumen de administrador: " + ex.Message
+                );
+            }
+        }
+
+        // Reemplaza el contenido de una ObservableCollection sin cambiar la colección enlazada al DataGrid.
+        private void Reemplazar<T>(ObservableCollection<T> destino, System.Collections.Generic.IEnumerable<T> datos)
+        {
+            destino.Clear();
+            if (datos == null) return;
+            foreach (var item in datos) destino.Add(item);
+        }
+
+        // Lleva los datos del ResumenAdminDTO a los indicadores y barras visuales del dashboard.
+        private void CargarResumen(ResumenAdminDTO r)
+        {
+            if (r == null) return;
+            TxtPedidosHoy.Text = r.PedidosHoy.ToString();
+            TxtVentasDia.Text = r.VentasDia.ToString("C0", CultureInfo.CurrentCulture);
+            TxtPedidosCurso.Text = r.PedidosCurso.ToString();
+            TxtTicketPromedio.Text = r.TicketPromedio.ToString("C0", CultureInfo.CurrentCulture);
+
+            int totalEstados = r.PedidoTomado + r.Preparacion + r.Listos + r.Camino + r.Completados;
+            BarPendientes.Value = Porcentaje(r.PedidoTomado, totalEstados);
+            BarPreparacion.Value = Porcentaje(r.Preparacion, totalEstados);
+            BarListos.Value = Porcentaje(r.Listos, totalEstados);
+            BarCamino.Value = Porcentaje(r.Camino, totalEstados);
+            BarCompletados.Value = Porcentaje(r.Completados, totalEstados);
+        }
+
+        // Calcula el porcentaje que representa cada estado dentro del total de pedidos del resumen.
+        private double Porcentaje(int valor, int total) => total == 0 ? 0 : (valor * 100.0 / total);
+
+        // Controla qué sección de Administrador se muestra y resalta el botón de navegación activo.
+        private void MostrarPanel(string panel)
+        {
+            PanelResumen.Visibility = panel == "resumen" ? Visibility.Visible : Visibility.Collapsed;
+            PanelClientes.Visibility = panel == "clientes" ? Visibility.Visible : Visibility.Collapsed;
+            PanelProveedores.Visibility = panel == "proveedores" ? Visibility.Visible : Visibility.Collapsed;
+            PanelEmpleados.Visibility = panel == "empleados" ? Visibility.Visible : Visibility.Collapsed;
+            PanelProductos.Visibility = panel == "productos" ? Visibility.Visible : Visibility.Collapsed;
+
+            Button[] botones = { BtnResumen, BtnClientes, BtnProveedores, BtnEmpleados, BtnProductos };
+            foreach (Button b in botones)
+            {
+                b.Background = Brushes.Transparent;
+                b.Foreground = new SolidColorBrush(Color.FromRgb(107, 111, 106));
+                b.BorderBrush = Brushes.Transparent;
+            }
+
+            Button activo = panel == "clientes" ? BtnClientes : panel == "proveedores" ? BtnProveedores :
+                            panel == "empleados" ? BtnEmpleados : panel == "productos" ? BtnProductos : BtnResumen;
+            activo.Background = Brushes.White;
+            activo.Foreground = new SolidColorBrush(Color.FromRgb(29, 33, 30));
+            activo.BorderBrush = new SolidColorBrush(Color.FromRgb(226, 224, 216));
+        }
+
+        private void BtnResumen_Click(object sender, RoutedEventArgs e) { MostrarPanel("resumen"); }
+        private void BtnClientes_Click(object sender, RoutedEventArgs e) { MostrarPanel("clientes"); }
+        private void BtnProveedores_Click(object sender, RoutedEventArgs e) { MostrarPanel("proveedores"); }
+        private void BtnEmpleados_Click(object sender, RoutedEventArgs e) { MostrarPanel("empleados"); }
+        private void BtnProductos_Click(object sender, RoutedEventArgs e) { MostrarPanel("productos"); }
+
+        // CLIENTES: carga en el formulario los datos de la fila seleccionada para permitir su modificación.
+        private void DgClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var c = DgClientes.SelectedItem as ClienteAdminDTO;
+            if (c == null) return;
+            TxtClienteNombre.Text = c.Nombre;
+            TxtClienteTelefono.Text = c.Telefono;
+            TxtClienteDireccion.Text = c.Direccion;
+        }
+
+        private async void ModificarCliente_Click(object sender, RoutedEventArgs e)
+        {
+            var c = DgClientes.SelectedItem as ClienteAdminDTO;
+            if (c == null) { MessageBox.Show("Seleccioná una venta/cliente."); return; }
+            if (string.IsNullOrWhiteSpace(TxtClienteNombre.Text)) { MessageBox.Show("El nombre es obligatorio."); return; }
+            c.Nombre = TxtClienteNombre.Text.Trim(); c.Telefono = TxtClienteTelefono.Text.Trim(); c.Direccion = TxtClienteDireccion.Text.Trim();
+            await Ejecutar(async () => { await servicio.ModificarCliente(c); Reemplazar(clientes, await servicio.ObtenerClientes()); }, "Datos del cliente modificados.");
+        }
+
+        // PROVEEDORES: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
+        private void DgProveedores_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var p = DgProveedores.SelectedItem as ProveedorAdminDTO;
+            if (p == null) return;
+            TxtProveedorNombre.Text = p.Nombre; TxtProveedorTelefono.Text = p.Telefono; TxtProveedorDireccion.Text = p.Direccion;
+        }
+
+        private ProveedorAdminDTO LeerProveedor()
+        {
+            if (string.IsNullOrWhiteSpace(TxtProveedorNombre.Text)) throw new Exception("El nombre del proveedor es obligatorio.");
+            return new ProveedorAdminDTO { Nombre = TxtProveedorNombre.Text.Trim(), Telefono = TxtProveedorTelefono.Text.Trim(), Direccion = TxtProveedorDireccion.Text.Trim() };
+        }
+
+        private async void AgregarProveedor_Click(object sender, RoutedEventArgs e)
+        {
+            try { var p = LeerProveedor(); await Ejecutar(async () => { await servicio.AgregarProveedor(p); Reemplazar(proveedores, await servicio.ObtenerProveedores()); LimpiarProveedor(); }, "Proveedor agregado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void ModificarProveedor_Click(object sender, RoutedEventArgs e)
+        {
+            var seleccionado = DgProveedores.SelectedItem as ProveedorAdminDTO;
+            if (seleccionado == null) { MessageBox.Show("Seleccioná un proveedor."); return; }
+            try { var p = LeerProveedor(); p.IdProveedor = seleccionado.IdProveedor; await Ejecutar(async () => { await servicio.ModificarProveedor(p); Reemplazar(proveedores, await servicio.ObtenerProveedores()); LimpiarProveedor(); }, "Proveedor modificado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void EliminarProveedor_Click(object sender, RoutedEventArgs e)
+        {
+            var p = DgProveedores.SelectedItem as ProveedorAdminDTO;
+            if (p == null) { MessageBox.Show("Seleccioná un proveedor."); return; }
+            if (!Confirmar("¿Eliminar el proveedor seleccionado?")) return;
+            await Ejecutar(async () => { await servicio.EliminarProveedor(p.IdProveedor); Reemplazar(proveedores, await servicio.ObtenerProveedores()); LimpiarProveedor(); }, "Proveedor eliminado.");
+        }
+
+        private void LimpiarProveedor() { TxtProveedorNombre.Clear(); TxtProveedorTelefono.Clear(); TxtProveedorDireccion.Clear(); DgProveedores.SelectedItem = null; }
+
+        // EMPLEADOS: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
+        private void DgEmpleados_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var u = DgEmpleados.SelectedItem as UsuarioAdminDTO;
+            if (u == null) return;
+            TxtEmpleadoNombre.Text = u.Nombre; TxtEmpleadoApellido.Text = u.Apellido; TxtEmpleadoEmail.Text = u.Email; TxtEmpleadoPass.Password = u.Pass ?? ""; TxtEmpleadoImagen.Text = u.Imagen;
+            foreach (ComboBoxItem item in CmbEmpleadoRol.Items)
+                if (string.Equals(item.Tag as string, u.Status, StringComparison.OrdinalIgnoreCase)) { CmbEmpleadoRol.SelectedItem = item; break; }
+        }
+
+        private UsuarioAdminDTO LeerUsuario()
+        {
+            var rol = CmbEmpleadoRol.SelectedItem as ComboBoxItem;
+            var status = rol == null ? null : rol.Tag as string;
+            if (string.IsNullOrWhiteSpace(TxtEmpleadoNombre.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoApellido.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoEmail.Text) || string.IsNullOrWhiteSpace(TxtEmpleadoPass.Password) || string.IsNullOrWhiteSpace(status))
+                throw new Exception("Nombre, apellido, email, contraseña y estado/rol son obligatorios.");
+            return new UsuarioAdminDTO { Nombre = TxtEmpleadoNombre.Text.Trim(), Apellido = TxtEmpleadoApellido.Text.Trim(), Email = TxtEmpleadoEmail.Text.Trim(), Pass = TxtEmpleadoPass.Password, Status = status, Imagen = TxtEmpleadoImagen.Text.Trim() };
+        }
+
+        private async void AgregarEmpleado_Click(object sender, RoutedEventArgs e)
+        {
+            try { var u = LeerUsuario(); await Ejecutar(async () => { await servicio.AgregarUsuario(u); Reemplazar(empleados, await servicio.ObtenerUsuarios()); LimpiarEmpleado(); }, "Usuario agregado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void ModificarEmpleado_Click(object sender, RoutedEventArgs e)
+        {
+            var seleccionado = DgEmpleados.SelectedItem as UsuarioAdminDTO;
+            if (seleccionado == null) { MessageBox.Show("Seleccioná un usuario."); return; }
+            try { var u = LeerUsuario(); u.Id = seleccionado.Id; await Ejecutar(async () => { await servicio.ModificarUsuario(u); Reemplazar(empleados, await servicio.ObtenerUsuarios()); LimpiarEmpleado(); }, "Usuario modificado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void EliminarEmpleado_Click(object sender, RoutedEventArgs e)
+        {
+            var u = DgEmpleados.SelectedItem as UsuarioAdminDTO;
+            if (u == null) { MessageBox.Show("Seleccioná un usuario."); return; }
+            if (!Confirmar("¿Eliminar el usuario seleccionado?")) return;
+            await Ejecutar(async () => { await servicio.EliminarUsuario(u.Id); Reemplazar(empleados, await servicio.ObtenerUsuarios()); LimpiarEmpleado(); }, "Usuario eliminado.");
+        }
+
+        private void LimpiarEmpleado() { TxtEmpleadoNombre.Clear(); TxtEmpleadoApellido.Clear(); TxtEmpleadoEmail.Clear(); TxtEmpleadoPass.Clear(); TxtEmpleadoImagen.Clear(); CmbEmpleadoRol.SelectedIndex = 0; DgEmpleados.SelectedItem = null; }
+
+        // PRODUCTOS: selección, lectura/validación del formulario y operaciones CRUD mediante el Service.
+        private void DgProductos_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var p = DgProductos.SelectedItem as ProductoAdminDTO;
+            if (p == null) return;
+            TxtProductoNombre.Text = p.Nombre; TxtProductoTipo.Text = p.Tipo; TxtProductoPrecio.Text = p.Precio.ToString(CultureInfo.CurrentCulture); TxtProductoDescripcion.Text = p.Descripcion; TxtProductoStock.Text = p.Stock.ToString(); TxtProductoCategoria.Text = p.Categoria; ChkProductoActivo.IsChecked = p.Activo;
+        }
+
+        private ProductoAdminDTO LeerProducto()
+        {
+            decimal precio; int stock;
+            if (string.IsNullOrWhiteSpace(TxtProductoNombre.Text) || !decimal.TryParse(TxtProductoPrecio.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out precio) || !int.TryParse(TxtProductoStock.Text, out stock))
+                throw new Exception("Completá nombre, precio y stock con valores válidos.");
+            return new ProductoAdminDTO { Nombre = TxtProductoNombre.Text.Trim(), Tipo = TxtProductoTipo.Text.Trim(), Precio = precio, Descripcion = TxtProductoDescripcion.Text.Trim(), Stock = stock, Categoria = TxtProductoCategoria.Text.Trim(), Activo = ChkProductoActivo.IsChecked == true };
+        }
+
+        private async void AgregarProducto_Click(object sender, RoutedEventArgs e)
+        {
+            try { var p = LeerProducto(); await Ejecutar(async () => { await servicio.AgregarProducto(p); Reemplazar(productos, await servicio.ObtenerProductos()); LimpiarProducto(); }, "Producto agregado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void ModificarProducto_Click(object sender, RoutedEventArgs e)
+        {
+            var seleccionado = DgProductos.SelectedItem as ProductoAdminDTO;
+            if (seleccionado == null) { MessageBox.Show("Seleccioná un producto."); return; }
+            try { var p = LeerProducto(); p.IdProducto = seleccionado.IdProducto; await Ejecutar(async () => { await servicio.ModificarProducto(p); Reemplazar(productos, await servicio.ObtenerProductos()); LimpiarProducto(); }, "Producto modificado."); }
+            catch (Exception ex) { MessageBox.Show(ex.Message); }
+        }
+
+        private async void EliminarProducto_Click(object sender, RoutedEventArgs e)
+        {
+            var p = DgProductos.SelectedItem as ProductoAdminDTO;
+            if (p == null) { MessageBox.Show("Seleccioná un producto."); return; }
+            if (!Confirmar("¿Eliminar el producto seleccionado?")) return;
+            await Ejecutar(async () => { await servicio.EliminarProducto(p.IdProducto); Reemplazar(productos, await servicio.ObtenerProductos()); LimpiarProducto(); }, "Producto eliminado.");
+        }
+
+        private void LimpiarProducto() { TxtProductoNombre.Clear(); TxtProductoTipo.Clear(); TxtProductoPrecio.Clear(); TxtProductoDescripcion.Clear(); TxtProductoStock.Clear(); TxtProductoCategoria.Clear(); ChkProductoActivo.IsChecked = true; DgProductos.SelectedItem = null; }
+
+        // Confirmación común antes de ejecutar eliminaciones desde Administrador.
+        private bool Confirmar(string mensaje) => MessageBox.Show(mensaje, "Confirmar", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes;
+
+        // Ejecuta una operación asincrónica de Admin y centraliza los mensajes de éxito/error para el usuario.
+        private async System.Threading.Tasks.Task Ejecutar(Func<System.Threading.Tasks.Task> accion, string mensajeExito)
+        {
+            try { await accion(); MessageBox.Show(mensajeExito, "Administrador", MessageBoxButton.OK, MessageBoxImage.Information); }
+            catch (Exception ex) { MessageBox.Show(ex.Message, "Administrador", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
     }
 }
