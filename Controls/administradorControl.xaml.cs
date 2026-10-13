@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using sistema_gestion_heladeria.Services;
 using sistema_gestion_heladeria.Models;
+using sistema_gestion_heladeria.Charts;
+using System.Collections.Generic;
 
 namespace sistema_gestion_heladeria.Controls
 {
@@ -14,6 +16,7 @@ namespace sistema_gestion_heladeria.Controls
     {
         // Service que concentra las llamadas de Administrador a la API.
         private readonly AdministradorService servicio = new AdministradorService();
+        private List<SaborMasVendidoDTO> saboresActuales = new List<SaborMasVendidoDTO>();
         // Colecciones enlazadas a los DataGrid. Al modificarlas, la interfaz refleja los datos actualizados.
         private readonly ObservableCollection<ClienteAdminDTO> clientes = new ObservableCollection<ClienteAdminDTO>();
         private readonly ObservableCollection<ProveedorAdminDTO> proveedores = new ObservableCollection<ProveedorAdminDTO>();
@@ -48,9 +51,10 @@ namespace sistema_gestion_heladeria.Controls
             {
                 try
                 {
-                    await Dispatcher.InvokeAsync(async () =>
+                    await await Dispatcher.InvokeAsync(async () =>
                     {
                         await RecargarResumen();
+                        await RecargarSabores();
                     });
                 }
                 catch (Exception ex)
@@ -65,7 +69,7 @@ namespace sistema_gestion_heladeria.Controls
             {
                 try
                 {
-                    await Dispatcher.InvokeAsync(async () =>
+                    await await Dispatcher.InvokeAsync(async () =>
                     {
                         await RecargarResumen();
                     });
@@ -92,6 +96,8 @@ namespace sistema_gestion_heladeria.Controls
             {
                 var resumen = await servicio.ObtenerResumen();
                 CargarResumen(resumen);
+                // Se reutiliza la misma carga que utiliza Socket.IO.
+                await RecargarSabores();
                 Reemplazar(clientes, await servicio.ObtenerClientes());
                 Reemplazar(proveedores, await servicio.ObtenerProveedores());
                 Reemplazar(empleados, await servicio.ObtenerUsuarios());
@@ -118,6 +124,34 @@ namespace sistema_gestion_heladeria.Controls
                 );
             }
         }
+        // Actualiza los sabores más vendidos al registrarse una nueva venta.
+        // Consulta los sabores y actualiza el gráfico y la leyenda en un solo lugar.
+        private async System.Threading.Tasks.Task RecargarSabores()
+        {
+            try
+            {
+                var sabores = await servicio.ObtenerSaboresMasVendidos();
+                AplicarSabores(sabores);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "Error al actualizar sabores más vendidos: " + ex.Message);
+            }
+        }
+
+        // Mantiene el orden de los sectores por ID, independientemente del filtro elegido.
+        private void AplicarSabores(IEnumerable<SaborMasVendidoDTO> sabores)
+        {
+            saboresActuales = (sabores ?? Enumerable.Empty<SaborMasVendidoDTO>())
+                .Where(s => s != null && s.Cantidad > 0)
+                .ToList();
+
+            GraficoSaboresDashboard.ActualizarDatos(
+                saboresActuales.OrderBy(s => s.IdSabor).ToList());
+
+            ActualizarLeyendaSabores();
+        }
 
         // Reemplaza el contenido de una ObservableCollection sin cambiar la colección enlazada al DataGrid.
         private void Reemplazar<T>(ObservableCollection<T> destino, System.Collections.Generic.IEnumerable<T> datos)
@@ -142,6 +176,38 @@ namespace sistema_gestion_heladeria.Controls
             BarListos.Value = Porcentaje(r.Listos, totalEstados);
             BarCamino.Value = Porcentaje(r.Camino, totalEstados);
             BarCompletados.Value = Porcentaje(r.Completados, totalEstados);
+        }
+
+        // El selector modifica únicamente la leyenda, nunca los sectores del gráfico.
+        private void CmbOrdenSabores_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (PanelLeyendaSabores != null) ActualizarLeyendaSabores();
+        }
+
+        private void ActualizarLeyendaSabores()
+        {
+            if (PanelLeyendaSabores == null) return;
+            int opcion = CmbOrdenSabores == null ? 0 : CmbOrdenSabores.SelectedIndex;
+            var ordenados = (opcion == 1 || opcion == 3)
+                ? saboresActuales.OrderBy(x => x.Cantidad).ThenBy(x => x.IdSabor).ToList()
+                : saboresActuales.OrderByDescending(x => x.Cantidad).ThenBy(x => x.IdSabor).ToList();
+            PanelLeyendaSabores.Children.Clear();
+            double total = saboresActuales.Sum(x => (double)x.Cantidad);
+            foreach (var sabor in ordenados)
+            {
+                var fila = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
+                fila.Children.Add(new Border {
+                    Width = 12, Height = 12, CornerRadius = new CornerRadius(3),
+                    Background = GraficoSabores.ObtenerColorSabor(sabor.IdSabor),
+                    Margin = new Thickness(0, 3, 10, 0), VerticalAlignment = VerticalAlignment.Top
+                });
+                var info = new StackPanel();
+                info.Children.Add(new TextBlock { Text = sabor.Nombre, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
+                double porcentaje = total > 0 ? 100.0 * sabor.Cantidad / total : 0;
+                info.Children.Add(new TextBlock { Text = $"{sabor.Cantidad} selecciones · {porcentaje:N1}%", Foreground = Brushes.Gray, FontSize = 12 });
+                fila.Children.Add(info);
+                PanelLeyendaSabores.Children.Add(fila);
+            }
         }
 
         // Calcula el porcentaje que representa cada estado dentro del total de pedidos del resumen.
@@ -176,6 +242,65 @@ namespace sistema_gestion_heladeria.Controls
         private void BtnProveedores_Click(object sender, RoutedEventArgs e) { MostrarPanel("proveedores"); }
         private void BtnEmpleados_Click(object sender, RoutedEventArgs e) { MostrarPanel("empleados"); }
         private void BtnProductos_Click(object sender, RoutedEventArgs e) { MostrarPanel("productos"); }
+
+        // CLIENTES: despliega u oculta los productos y sabores de una venta.
+        // Los detalles se consultan únicamente la primera vez que se abre cada fila.
+        private async void DesplegarVenta_Click(object sender, RoutedEventArgs e)
+        {
+            var boton = sender as Button;
+            if (boton == null) return;
+
+            var cliente = boton.DataContext as ClienteAdminDTO;
+            if (cliente == null) return;
+
+            var fila = DgClientes.ItemContainerGenerator.ContainerFromItem(cliente)
+                       as DataGridRow;
+
+            if (fila == null) return;
+
+            // Si está abierto, ocultar el detalle.
+            if (fila.DetailsVisibility == Visibility.Visible)
+            {
+                fila.DetailsVisibility = Visibility.Collapsed;
+                boton.Content = "▸";
+                return;
+            }
+
+            // Si todavía no consultamos esta venta, solicitar los datos a la API.
+            if (fila.Tag == null)
+            {
+                try
+                {
+                    boton.IsEnabled = false;
+                    boton.Content = "...";
+
+                    var detalle = await servicio.ObtenerDetalleVenta(cliente.IdVenta);
+
+                    // Asociar los productos a esta fila.
+                    fila.Tag = detalle;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        "No se pudo obtener el detalle de la venta.\n" + ex.Message,
+                        "Administrador",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error
+                    );
+
+                    boton.Content = "▸";
+                    return;
+                }
+                finally
+                {
+                    boton.IsEnabled = true;
+                }
+            }
+
+            // Mostrar el detalle.
+            fila.DetailsVisibility = Visibility.Visible;
+            boton.Content = "▾";
+        }
 
         // CLIENTES: carga en el formulario los datos de la fila seleccionada para permitir su modificación.
         private void DgClientes_SelectionChanged(object sender, SelectionChangedEventArgs e)

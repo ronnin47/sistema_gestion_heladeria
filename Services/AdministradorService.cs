@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -53,7 +53,11 @@ namespace sistema_gestion_heladeria.Services
         // Endpoints utilizados por las distintas secciones de Administrador.
         // Cada método devuelve/recibe DTOs y mantiene las rutas de la API fuera del UserControl.
         public Task<ResumenAdminDTO> ObtenerResumen() => GetAsync<ResumenAdminDTO>("/admin/resumen");
+        public Task<List<SaborMasVendidoDTO>> ObtenerSaboresMasVendidos() => GetAsync<List<SaborMasVendidoDTO>>("/admin/sabores/mas-vendidos");
         public Task<List<ClienteAdminDTO>> ObtenerClientes() => GetAsync<List<ClienteAdminDTO>>("/admin/clientes");
+        // Consulta los productos y sabores asociados a una venta.
+        public Task<DetalleVentaAdminDTO> ObtenerDetalleVenta(int idVenta)
+            => GetAsync<DetalleVentaAdminDTO>($"/admin/clientes/{idVenta}/detalle");
         public Task<object> ModificarCliente(ClienteAdminDTO c) => EnviarAsync<object>(HttpMethod.Put, $"/admin/clientes/{c.IdVenta}", c);
 
         public Task<List<ProveedorAdminDTO>> ObtenerProveedores() => GetAsync<List<ProveedorAdminDTO>>("/admin/proveedores");

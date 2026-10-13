@@ -184,8 +184,11 @@
     <Compile Include="Controls\repartidorControl.xaml.cs">
       <DependentUpon>repartidorControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Charts\GraficoSabores.cs" />
+    <Compile Include="Models\SaborMasVendidoDTO.cs" />
     <Compile Include="Models\Cliente.cs" />
     <Compile Include="Models\ClienteAdminDTO.cs" />
+    <Compile Include="Models\DetalleVentaAdminDTO.cs" />
     <Compile Include="Models\ErrorApiDTO.cs" />
     <Compile Include="Models\HeladoSabor.cs" />
     <Compile Include="Models\PedidoActivoDTO.cs" />

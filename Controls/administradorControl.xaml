@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:charts="clr-namespace:sistema_gestion_heladeria.Charts"
              mc:Ignorable="d" d:DesignHeight="600" d:DesignWidth="1000">
     <UserControl.Resources>
         <Style x:Key="NavButton" TargetType="Button">
@@ -127,6 +128,31 @@
                             <ProgressBar x:Name="BarCompletados" Height="8" Maximum="100" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
+                    <!-- SABORES MÁS VENDIDOS -->
+                    <Border Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Sabores más vendidos" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,14"/>
+                            <Grid HorizontalAlignment="Center" Margin="0,10,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="320"/>
+                                </Grid.ColumnDefinitions>
+                                <charts:GraficoSabores x:Name="GraficoSaboresDashboard" Grid.Column="0" Width="280" Height="280" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Ordenar sabores por:" FontSize="12" Foreground="#6B6F6A" Margin="0,0,0,5"/>
+                                    <ComboBox x:Name="CmbOrdenSabores" Width="270" Height="32" HorizontalAlignment="Left" Margin="0,0,0,12" SelectionChanged="CmbOrdenSabores_SelectionChanged">
+                                        <ComboBoxItem Content="Mayor a menor porcentaje" IsSelected="True"/>
+                                        <ComboBoxItem Content="Menor a mayor porcentaje"/>
+                                        <ComboBoxItem Content="Más selecciones a menos selecciones"/>
+                                        <ComboBoxItem Content="Menos selecciones a más selecciones"/>
+                                    </ComboBox>
+                                    <ScrollViewer Height="280" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                                        <StackPanel x:Name="PanelLeyendaSabores"/>
+                                    </ScrollViewer>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
 
                 <!-- CLIENTES: datos asociados a ventas; no existe una entidad clientes independiente -->
@@ -134,13 +160,99 @@
                     <StackPanel>
                         <TextBlock Text="Clientes asociados a ventas" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,4"/>
                         <TextBlock Text="Los datos del cliente pertenecen a la factura/entrega de cada venta." Foreground="#6B6F6A" FontSize="11" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgClientes" Height="250" SelectionChanged="DgClientes_SelectionChanged">
+                        <DataGrid x:Name="DgClientes"
+          Height="500"
+          SelectionChanged="DgClientes_SelectionChanged"
+          RowDetailsVisibilityMode="Collapsed">
+
+                            <!-- Detalle desplegable de los productos de una venta -->
+                            <DataGrid.RowDetailsTemplate>
+                                <DataTemplate>
+                                    <Border Background="#FFF7F9"
+                    BorderBrush="#E2E0D8"
+                    BorderThickness="0,0,0,1"
+                    Padding="16,10">
+
+                                        <StackPanel>
+                                            <TextBlock Text="Productos y sabores de la venta"
+                               FontWeight="SemiBold"
+                               Foreground="#333333"
+                               Margin="0,0,0,8"/>
+
+                                            <ItemsControl ItemsSource="{Binding Tag.Productos,
+                        RelativeSource={RelativeSource AncestorType=DataGridRow}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="White"
+                                        CornerRadius="5"
+                                        Padding="10"
+                                        Margin="0,0,0,6">
+                                                            <StackPanel>
+                                                                <TextBlock FontWeight="SemiBold">
+                                            <Run Text="{Binding Cantidad}"/>
+                                            <Run Text="x "/>
+                                            <Run Text="{Binding ProductoNombre}"/>
+                                                                </TextBlock>
+
+                                                                <ItemsControl ItemsSource="{Binding Sabores}"
+                                                      Margin="12,5,0,0">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBlock Foreground="#6B6F6A">
+                                                        <Run Text="• "/>
+                                                        <Run Text="{Binding Nombre}"/>
+                                                                            </TextBlock>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGrid.RowDetailsTemplate>
+
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="Venta" Binding="{Binding IdVenta}" Width="70"/>
-                                <DataGridTextColumn Header="Fecha" Binding="{Binding Fecha, StringFormat={}{0:dd/MM/yyyy HH:mm}}" Width="130"/>
-                                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>
-                                <DataGridTextColumn Header="Teléfono" Binding="{Binding Telefono}" Width="*"/>
-                                <DataGridTextColumn Header="Dirección" Binding="{Binding Direccion}" Width="2*"/>
+
+                                <!-- Botón para desplegar u ocultar -->
+                                <DataGridTemplateColumn Header="" Width="45">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="▸"
+                            Width="28"
+                            Height="26"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand"
+                            FontSize="16"
+                            Click="DesplegarVenta_Click"/>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
+                                <DataGridTextColumn Header="Venta"
+                            Binding="{Binding IdVenta}"
+                            Width="70"/>
+
+                                <DataGridTextColumn Header="Fecha"
+                            Binding="{Binding Fecha, StringFormat={}{0:dd/MM/yyyy HH:mm}}"
+                            Width="130"/>
+
+                                <DataGridTextColumn Header="Nombre"
+                            Binding="{Binding Nombre}"
+                            Width="2*"/>
+
+                                <DataGridTextColumn Header="Teléfono"
+                            Binding="{Binding Telefono}"
+                            Width="*"/>
+
+                                <DataGridTextColumn Header="Dirección"
+                            Binding="{Binding Direccion}"
+                            Width="2*"/>
+
                             </DataGrid.Columns>
                         </DataGrid>
                         <Grid Margin="0,14,0,0">
@@ -171,7 +283,7 @@
                 <Border x:Name="PanelProveedores" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel>
                         <TextBlock Text="Proveedores" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgProveedores" Height="240" SelectionChanged="DgProveedores_SelectionChanged">
+                        <DataGrid x:Name="DgProveedores" Height="500" SelectionChanged="DgProveedores_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding IdProveedor}" Width="55"/>
                                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="2*"/>
@@ -210,7 +322,7 @@
                 <Border x:Name="PanelEmpleados" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel>
                         <TextBlock Text="Empleados / Usuarios" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgEmpleados" Height="230" SelectionChanged="DgEmpleados_SelectionChanged">
+                        <DataGrid x:Name="DgEmpleados" Height="500" SelectionChanged="DgEmpleados_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="45"/>
                                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
@@ -275,7 +387,7 @@
                 <Border x:Name="PanelProductos" Visibility="Collapsed" Background="White" BorderBrush="#E2E0D8" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel>
                         <TextBlock Text="Productos" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                        <DataGrid x:Name="DgProductos" Height="220" SelectionChanged="DgProductos_SelectionChanged">
+                        <DataGrid x:Name="DgProductos" Height="500" SelectionChanged="DgProductos_SelectionChanged">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding IdProducto}" Width="45"/>
                                 <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
