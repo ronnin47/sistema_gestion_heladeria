@@ -301,6 +301,30 @@ namespace sistema_gestion_heladeria.Controls
                 informacion.Children.Add(direccion);
             }
 
+
+
+
+            // TELÉFONO DEL CLIENTE
+            if (!string.IsNullOrWhiteSpace(pedido.telefono))
+            {
+                TextBlock telefono = new TextBlock();
+
+                telefono.Text =
+                    "Teléfono: " + pedido.telefono;
+
+                telefono.FontSize = 14;
+
+                telefono.Margin =
+                    new Thickness(0, 5, 0, 0);
+
+                telefono.Foreground =
+                    new SolidColorBrush(
+                        Color.FromRgb(107, 114, 128));
+
+                informacion.Children.Add(telefono);
+            }
+
+
             // MEDIO DE PAGO
             TextBlock medioPago =
                 new TextBlock();

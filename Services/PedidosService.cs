@@ -105,7 +105,13 @@ namespace sistema_gestion_heladeria.Services
                     {
                         string json =
                             await respuesta.Content.ReadAsStringAsync();
-
+                        /*
+                        MessageBox.Show(
+    json,
+    "Pedidos activos - Respuesta API",
+    MessageBoxButton.OK,
+    MessageBoxImage.Information);
+                        */
                         List<PedidoActivoDTO> pedidos =
                             JsonConvert.DeserializeObject<List<PedidoActivoDTO>>(json);
 

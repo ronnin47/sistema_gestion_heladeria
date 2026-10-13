@@ -386,6 +386,22 @@ private void RenderizarPedidosActivos()
                 }
 
 
+                // TELÉFONO
+                if (!string.IsNullOrWhiteSpace(pedido.telefono))
+                {
+                    TextBlock telefono = new TextBlock
+                    {
+                        Text = "Teléfono: " + pedido.telefono,
+                        FontSize = 10,
+                        Foreground = new SolidColorBrush(
+                            Color.FromRgb(110, 115, 120)),
+                        Margin = new Thickness(0, 3, 0, 8),
+                        TextTrimming = TextTrimming.CharacterEllipsis
+                    };
+
+                    contenido.Children.Add(telefono);
+                }
+
                 // PIE
                 Grid pie = new Grid
                 {

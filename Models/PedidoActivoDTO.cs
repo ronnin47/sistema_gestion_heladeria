@@ -26,6 +26,8 @@ namespace sistema_gestion_heladeria.Models
 
         public string estado_entrega { get; set; }
 
+        public string telefono { get; set; }
+
         public List<ProductoPedidoDTO> productos { get; set; }
     }
 }
