@@ -57,9 +57,13 @@ namespace sistema_gestion_heladeria.Controls
                         );
                     });
                     */
+
+
+
                     // Actualizar los pedidos en el hilo de WPF
                     await Dispatcher.InvokeAsync(async () =>
                     {
+                        AudioService.ReproducirNotificacion();
                         await CargarPedidos();
                     });
                 }
@@ -89,7 +93,7 @@ namespace sistema_gestion_heladeria.Controls
                 }
             });
         }
-        //asdasdas
+        
 
         private async void produccionControl_Loaded(object sender, RoutedEventArgs e)
         {

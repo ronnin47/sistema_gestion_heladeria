@@ -167,8 +167,21 @@ namespace sistema_gestion_heladeria.Controls
             {
                 try
                 {
+                    var datos = response.GetValue<System.Text.Json.JsonElement>();
+                    string estado = datos.GetProperty("estado").GetString();
+
                     await Dispatcher.InvokeAsync(async () =>
                     {
+                        // NUEVO: sonido únicamente cuando el pedido está listo
+                        if (string.Equals(
+                            estado,
+                            "Listo",
+                            StringComparison.OrdinalIgnoreCase))
+                        {
+                            AudioService.ReproducirNotificacion();
+                        }
+
+                        // LÓGICA ORIGINAL: se mantiene sin cambios
                         pedidosActivos =
                             await pedidosService.ObtenerPedidosActivos();
 
@@ -951,6 +964,13 @@ private void RenderizarPedidosActivos()
             medioPagoSeleccionado =
                 "Efectivo";
 
+
+            txtNombreEntrega.Text = "";
+            txtTelefonoEntrega.Text = "";
+            txtDireccionEntrega.Text = "";
+
+
+
             btnEfectivo.RaiseEvent(
                 new RoutedEventArgs(
                     Button.ClickEvent));
@@ -1109,8 +1129,16 @@ private void RenderizarPedidosActivos()
             pedido.productos =
                 CrearProductosPedido();
 
+
+
+
             return pedido;
         }
+
+
+
+
+
 
         private List<ProductoPedido> CrearProductosPedido()
         {

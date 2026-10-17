@@ -103,10 +103,31 @@ namespace sistema_gestion_heladeria.Controls
             {
                 try
                 {
+                    var datos =
+                        response.GetValue<System.Text.Json.JsonElement>();
+
+                    string tipoEntrega =
+                        datos.GetProperty("tipo_entrega").GetString();
+
+                    string estado =
+                        datos.GetProperty("estado").GetString();
+
                     await Dispatcher.InvokeAsync(async () =>
                     {
-                   
+                        // Sonido únicamente para Delivery cuando está listo
+                        if (string.Equals(
+                                tipoEntrega,
+                                "Delivery",
+                                StringComparison.OrdinalIgnoreCase) &&
+                            string.Equals(
+                                estado,
+                                "Listo",
+                                StringComparison.OrdinalIgnoreCase))
+                        {
+                            AudioService.ReproducirNotificacion();
+                        }
 
+                        // Tu lógica original
                         await CargarPedidos();
                     });
                 }
