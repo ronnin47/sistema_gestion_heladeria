@@ -124,7 +124,7 @@ namespace sistema_gestion_heladeria.Controls
                                 "Listo",
                                 StringComparison.OrdinalIgnoreCase))
                         {
-                            AudioService.ReproducirNotificacion();
+                           AudioService.ReproducirNotificacion();
                         }
 
                         // Tu lógica original
@@ -138,6 +138,8 @@ namespace sistema_gestion_heladeria.Controls
                     );
                 }
             });
+
+
         }
         // =========================================================
         // MOSTRAR PEDIDOS
