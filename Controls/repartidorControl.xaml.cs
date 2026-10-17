@@ -122,6 +122,9 @@ namespace sistema_gestion_heladeria.Controls
                             string.Equals(
                                 estado,
                                 "Listo",
+                                StringComparison.OrdinalIgnoreCase) && string.Equals(
+                                estado,
+                                "En preparacion",
                                 StringComparison.OrdinalIgnoreCase))
                         {
                             AudioService.ReproducirNotificacion();

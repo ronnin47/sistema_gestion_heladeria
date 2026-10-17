@@ -131,36 +131,6 @@ namespace sistema_gestion_heladeria.Views
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         private void CerrarSesion_Click(object sender, RoutedEventArgs e)
         {
 
