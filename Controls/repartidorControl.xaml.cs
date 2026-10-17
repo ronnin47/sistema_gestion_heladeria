@@ -155,24 +155,15 @@ namespace sistema_gestion_heladeria.Controls
             // PEDIDOS ACTIVOS
             // SOLO DELIVERY
             // =====================================================
+
             foreach (PedidoActivoDTO pedido in pedidosActivos)
             {
                 // SOLO MOSTRAR PEDIDOS DE DELIVERY
-                if (!string.Equals(
-                    pedido.tipo_entrega,
-                    "Delivery",
-                    StringComparison.OrdinalIgnoreCase))
+                if (pedido.tipo_entrega != "Delivery")
                     continue;
 
-                // SOLO MOSTRAR PEDIDOS LISTOS
-                if (!string.Equals(
-                    pedido.estado,
-                    "Listo",
-                    StringComparison.OrdinalIgnoreCase) &&
-                    !string.Equals(
-                    pedido.estado,
-                    "En camino",
-                    StringComparison.OrdinalIgnoreCase))
+                // Si ya está entregado no va a la izquierda
+                if (pedido.estado == "Entregado")
                     continue;
 
                 Border tarjeta =
