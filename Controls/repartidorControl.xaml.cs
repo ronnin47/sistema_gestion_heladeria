@@ -118,14 +118,11 @@ namespace sistema_gestion_heladeria.Controls
                         if (string.Equals(
                                 tipoEntrega,
                                 "Delivery",
-                                StringComparison.OrdinalIgnoreCase) && (
+                                StringComparison.OrdinalIgnoreCase) &&
                             string.Equals(
                                 estado,
                                 "Listo",
-                                StringComparison.OrdinalIgnoreCase) || string.Equals(
-                                estado,
-                                "En preparación",
-                                StringComparison.OrdinalIgnoreCase)))
+                                StringComparison.OrdinalIgnoreCase))
                         {
                             AudioService.ReproducirNotificacion();
                         }
@@ -158,15 +155,24 @@ namespace sistema_gestion_heladeria.Controls
             // PEDIDOS ACTIVOS
             // SOLO DELIVERY
             // =====================================================
-
             foreach (PedidoActivoDTO pedido in pedidosActivos)
             {
                 // SOLO MOSTRAR PEDIDOS DE DELIVERY
-                if (pedido.tipo_entrega != "Delivery")
+                if (!string.Equals(
+                    pedido.tipo_entrega,
+                    "Delivery",
+                    StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                // Si ya está entregado no va a la izquierda
-                if (pedido.estado == "Entregado")
+                // SOLO MOSTRAR PEDIDOS LISTOS
+                if (!string.Equals(
+                    pedido.estado,
+                    "Listo",
+                    StringComparison.OrdinalIgnoreCase) &&
+                    !string.Equals(
+                    pedido.estado,
+                    "En camino",
+                    StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 Border tarjeta =
