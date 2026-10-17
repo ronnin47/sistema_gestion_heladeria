@@ -118,14 +118,14 @@ namespace sistema_gestion_heladeria.Controls
                         if (string.Equals(
                                 tipoEntrega,
                                 "Delivery",
-                                StringComparison.OrdinalIgnoreCase) &&
+                                StringComparison.OrdinalIgnoreCase) && (
                             string.Equals(
                                 estado,
                                 "Listo",
-                                StringComparison.OrdinalIgnoreCase) && string.Equals(
+                                StringComparison.OrdinalIgnoreCase) || string.Equals(
                                 estado,
                                 "En preparacion",
-                                StringComparison.OrdinalIgnoreCase))
+                                StringComparison.OrdinalIgnoreCase)))
                         {
                             AudioService.ReproducirNotificacion();
                         }
