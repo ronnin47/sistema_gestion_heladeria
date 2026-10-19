@@ -11,7 +11,13 @@ namespace sistema_gestion_heladeria.Config
     {
 
         public static readonly HttpClient Client = new HttpClient();
+        // API local para desarrollo
+        public static readonly string ApiUrl =
+            "http://localhost:3000";
 
+        // Socket.IO local
+        public static readonly string SocketUrl =
+            "http://localhost:3000";
 
         /*
         // Local
@@ -20,15 +26,16 @@ namespace sistema_gestion_heladeria.Config
         // Socket
         public static readonly string SocketUrl = "http://localhost:3000";
         */
-       
-         //Render
+
+        /* //Render
         public static readonly string ApiUrl =
             "https://api-heladeria-groz.onrender.com";
 
         // Socket.IO
         public static readonly string SocketUrl =
             "https://api-heladeria-groz.onrender.com";
-       
+        */
+
 
     }
 }
