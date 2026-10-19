@@ -4,6 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using sistema_gestion_heladeria.Models;
 using sistema_gestion_heladeria.Services;
+using Microsoft.Win32;
+using sistema_gestion_heladeria.Reports;
 
 namespace sistema_gestion_heladeria.Controls.Administrador
 {
@@ -91,9 +93,6 @@ namespace sistema_gestion_heladeria.Controls.Administrador
                 // Solicitar los datos a la API.
                 informeActual = await servicio.ObtenerInforme(desde, hasta);
 
-                if (informeActual.Resumen == null)
-                    throw new Exception("La API no devolvió el resumen de ventas.");
-
                 // Mostrar los indicadores principales.
                 TxtCantidadVentas.Text =
                     informeActual.Resumen.CantidadVentas.ToString();
@@ -122,12 +121,17 @@ namespace sistema_gestion_heladeria.Controls.Administrador
                         hasta.ToString("dd/MM/yyyy") + ".";
                 }
 
-                // Se habilitará al implementar la generación del PDF.
-                BtnGuardarPdf.IsEnabled = false;
+                DgVentasInforme.ItemsSource = informeActual.Ventas;
+
+                // Permitir generar el PDF con el informe consultado.
+                BtnGuardarPdf.IsEnabled = true;
+
             }
             catch (Exception ex)
             {
                 informeActual = null;
+                BtnGuardarPdf.IsEnabled = false;
+
                 TxtEstadoInforme.Text =
                     "No se pudo obtener el informe de ventas.";
 
@@ -139,14 +143,80 @@ namespace sistema_gestion_heladeria.Controls.Administrador
             }
             finally
             {
+                // Volver a habilitar la consulta, incluso si ocurre un error.
                 BtnConsultar.IsEnabled = true;
             }
         }
 
 
         // La generación del PDF se implementará después de conectar la API.
+
         private void BtnGuardarPdf_Click(object sender, RoutedEventArgs e)
         {
+            // Verificar que exista un informe consultado.
+            if (informeActual == null)
+            {
+                MessageBox.Show(
+                    "Primero debés consultar un período de ventas.",
+                    "Informe de ventas",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                return;
+            }
+
+            // Proponer un nombre de archivo según el período.
+            string nombreArchivo =
+                "Informe_Ventas_" +
+                informeActual.Periodo.Desde +
+                "_a_" +
+                informeActual.Periodo.Hasta +
+                ".pdf";
+
+            // Abrir la ventana de Windows para elegir dónde guardar.
+            SaveFileDialog dialogo = new SaveFileDialog
+            {
+                Title = "Guardar informe de ventas",
+                Filter = "Documento PDF (*.pdf)|*.pdf",
+                DefaultExt = ".pdf",
+                AddExtension = true,
+                FileName = nombreArchivo,
+                OverwritePrompt = true
+            };
+
+            if (dialogo.ShowDialog() != true)
+                return;
+
+            try
+            {
+                BtnGuardarPdf.IsEnabled = false;
+
+                // Generar el PDF con los datos ya consultados.
+                InformeVentasPdf.Generar(
+                    informeActual,
+                    dialogo.FileName);
+
+                MessageBox.Show(
+                    "El informe PDF se guardó correctamente.",
+                    "Informe de ventas",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "No se pudo generar el informe PDF.\n\n" +
+                    ex.Message,
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                // Restaurar el botón de exportación después del intento.
+                BtnGuardarPdf.IsEnabled = informeActual != null;
+            }
         }
+
     }
 }
