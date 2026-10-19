@@ -131,13 +131,32 @@ namespace sistema_gestion_heladeria.Views
 
 
 
-        private void CerrarSesion_Click(object sender, RoutedEventArgs e)
+        private async void CerrarSesion_Click(object sender, RoutedEventArgs e)
         {
+            // Detener cualquier sonido en reproducción
+            AudioService.Detener();
 
-            //MessageBox.Show("funca el boton cerrar sesion");
+            // Desconectar el socket compartido
+            if (socket != null)
+            {
+                try
+                {
+                    await socket.DisconnectAsync();
+                    socket.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "Error al cerrar socket: " + ex.Message
+                    );
+                }
+
+                socket = null;
+            }
+
+            // Cerrar la sesión y la ventana actual
             SesionUsuario.CerrarSesion();
             this.Close();
-
         }
 
 
