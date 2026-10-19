@@ -214,15 +214,30 @@ namespace sistema_gestion_heladeria.Controls
         private double Porcentaje(int valor, int total) => total == 0 ? 0 : (valor * 100.0 / total);
 
         // Controla qué sección de Administrador se muestra y resalta el botón de navegación activo.
+
         private void MostrarPanel(string panel)
         {
+            // Mostrar únicamente la sección seleccionada.
             PanelResumen.Visibility = panel == "resumen" ? Visibility.Visible : Visibility.Collapsed;
             PanelClientes.Visibility = panel == "clientes" ? Visibility.Visible : Visibility.Collapsed;
             PanelProveedores.Visibility = panel == "proveedores" ? Visibility.Visible : Visibility.Collapsed;
             PanelEmpleados.Visibility = panel == "empleados" ? Visibility.Visible : Visibility.Collapsed;
             PanelProductos.Visibility = panel == "productos" ? Visibility.Visible : Visibility.Collapsed;
 
-            Button[] botones = { BtnResumen, BtnClientes, BtnProveedores, BtnEmpleados, BtnProductos };
+            // Nueva sección de informes.
+            PanelInformes.Visibility = panel == "informes" ? Visibility.Visible : Visibility.Collapsed;
+
+            // Restablecer los estilos de todos los botones.
+            Button[] botones =
+            {
+                BtnResumen,
+                BtnClientes,
+                BtnProveedores,
+                BtnEmpleados,
+                BtnProductos,
+                BtnInformes
+        };
+
             foreach (Button b in botones)
             {
                 b.Background = Brushes.Transparent;
@@ -230,18 +245,28 @@ namespace sistema_gestion_heladeria.Controls
                 b.BorderBrush = Brushes.Transparent;
             }
 
-            Button activo = panel == "clientes" ? BtnClientes : panel == "proveedores" ? BtnProveedores :
-                            panel == "empleados" ? BtnEmpleados : panel == "productos" ? BtnProductos : BtnResumen;
+            // Resaltar el botón de la sección activa.
+            Button activo =
+                panel == "clientes" ? BtnClientes :
+                panel == "proveedores" ? BtnProveedores :
+                panel == "empleados" ? BtnEmpleados :
+                panel == "productos" ? BtnProductos :
+                panel == "informes" ? BtnInformes :
+                BtnResumen;
+
             activo.Background = Brushes.White;
             activo.Foreground = new SolidColorBrush(Color.FromRgb(29, 33, 30));
             activo.BorderBrush = new SolidColorBrush(Color.FromRgb(226, 224, 216));
         }
+
 
         private void BtnResumen_Click(object sender, RoutedEventArgs e) { MostrarPanel("resumen"); }
         private void BtnClientes_Click(object sender, RoutedEventArgs e) { MostrarPanel("clientes"); }
         private void BtnProveedores_Click(object sender, RoutedEventArgs e) { MostrarPanel("proveedores"); }
         private void BtnEmpleados_Click(object sender, RoutedEventArgs e) { MostrarPanel("empleados"); }
         private void BtnProductos_Click(object sender, RoutedEventArgs e) { MostrarPanel("productos"); }
+        private void BtnInformes_Click(object sender, RoutedEventArgs e) {MostrarPanel("informes"); }
+
 
         // CLIENTES: despliega u oculta los productos y sabores de una venta.
         // Los detalles se consultan únicamente la primera vez que se abre cada fila.
