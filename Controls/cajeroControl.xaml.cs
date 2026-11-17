@@ -43,14 +43,7 @@ namespace sistema_gestion_heladeria.Controls
         private Dictionary<int, List<int>> saboresPorProducto = new Dictionary<int, List<int>>();
 
 
-
-
-
-
-
-        //necesitamos que esto venga d ela base de datos y cargarlo cuando cargue la instancia de cajero
-
-
+//presentacion hoy
 
 
 
